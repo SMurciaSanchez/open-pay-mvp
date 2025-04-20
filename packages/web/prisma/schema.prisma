@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Definición de los modelos para OpenPay
+
+model Profile {
+  id         String   @id @default(uuid())
+  userId     String   @unique // Referencia a auth.users.id de Supabase
+  fullName   String
+  email      String   @unique
+  avatarUrl  String?
+  phone      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relaciones
+  sentTransactions     Transaction[] @relation("SenderTransactions")
+  receivedTransactions Transaction[] @relation("ReceiverTransactions")
+  accounts             Account[]
+}
+
+model Account {
+  id        String   @id @default(uuid())
+  profileId String
+  balance   Float    @default(0)
+  type      String   @default("CHECKING") // CHECKING, SAVINGS, CREDIT
+  number    String   @unique
+  status    String   @default("ACTIVE") // ACTIVE, BLOCKED, SUSPENDED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  profile Profile @relation(fields: [profileId], references: [id])
+}
+
+model Transaction {
+  id          String   @id @default(uuid())
+  senderId    String
+  receiverId  String
+  amount      Float
+  description String?
+  status      String   @default("COMPLETED") // PENDING, COMPLETED, FAILED, REJECTED
+  type        String   @default("TRANSFER") // TRANSFER, PAYMENT, DEPOSIT, WITHDRAWAL
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relaciones
+  sender   Profile @relation("SenderTransactions", fields: [senderId], references: [id])
+  receiver Profile @relation("ReceiverTransactions", fields: [receiverId], references: [id])
+}
+
+model ServicePayment {
+  id          String   @id @default(uuid())
+  profileId   String
+  serviceType String   // UTILITIES, PHONE, INTERNET, CABLE, OTHER
+  provider    String
+  billNumber  String
+  amount      Float
+  status      String   @default("PENDING") // PENDING, COMPLETED, FAILED
+  dueDate     DateTime?
+  paidAt      DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  action    String
+  resource  String
+  details   String?
+  ipAddress String?
+  createdAt DateTime @default(now())
+}
