@@ -1,4 +1,3 @@
-import { apiClient } from '@/lib/api';
 
 // Types for service providers
 export type ServiceProvider = {

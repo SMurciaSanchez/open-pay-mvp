@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { Eye, EyeOff, LockKeyhole } from 'lucide-react';
-import { apiClient } from '@/lib/api';
+import { supabase } from '@/lib/supabase';
 
 export function PasswordChange() {
   const { toast } = useToast();
@@ -68,35 +68,28 @@ export function PasswordChange() {
     setIsLoading(true);
     
     try {
-      await apiClient.post('/auth/change-password', {
-        currentPassword: formData.currentPassword,
-        newPassword: formData.newPassword
-      });
-      
+      const { error: supabaseError } = await supabase.auth.updateUser({ password: formData.newPassword });
+
+      if (supabaseError) throw supabaseError;
+
       toast({
         title: 'Contraseña actualizada',
         description: 'Tu contraseña ha sido actualizada exitosamente',
-        variant: 'success'
       });
-      
+
       // Reset form
       setFormData({
         currentPassword: '',
         newPassword: '',
         confirmPassword: ''
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error al cambiar contraseña:', error);
-      
-      if (error.response?.status === 401) {
-        setErrors({ currentPassword: 'La contraseña actual es incorrecta' });
-      } else {
-        toast({
-          title: 'Error al cambiar contraseña',
-          description: error.response?.data?.message || 'Ha ocurrido un error al actualizar tu contraseña',
-          variant: 'destructive'
-        });
-      }
+      toast({
+        title: 'Error al cambiar contraseña',
+        description: error instanceof Error ? error.message : 'Ha ocurrido un error al actualizar tu contraseña',
+        variant: 'destructive'
+      });
     } finally {
       setIsLoading(false);
     }

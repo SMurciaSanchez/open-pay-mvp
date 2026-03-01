@@ -59,7 +59,7 @@ function preparePublicKeyCredentialOptions(options: any): PublicKeyCredentialCre
   const challenge = base64ToArrayBuffer(options.challenge);
   const user = {
     ...options.user,
-    id: Uint8Array.from(options.user.id, c => c.charCodeAt(0)),
+    id: Uint8Array.from(options.user.id as string, (c: string) => c.charCodeAt(0)),
   };
   
   const publicKey = {
@@ -112,7 +112,7 @@ export async function registerBiometric(
     // The server would generate a random challenge, specify the RP name,
     // and the user information
     const options = {
-      challenge: arrayBufferToBase64(crypto.getRandomValues(new Uint8Array(32))),
+      challenge: arrayBufferToBase64(crypto.getRandomValues(new Uint8Array(32)).buffer as ArrayBuffer),
       rp: {
         name: 'OpenPay Secure',
         id: window.location.hostname,
@@ -193,7 +193,7 @@ export async function authenticateWithBiometric(): Promise<{ success: boolean; e
     // The server would generate a random challenge and specify
     // the allowed credentials for this user
     const options = {
-      challenge: arrayBufferToBase64(crypto.getRandomValues(new Uint8Array(32))),
+      challenge: arrayBufferToBase64(crypto.getRandomValues(new Uint8Array(32)).buffer as ArrayBuffer),
       timeout: 60000,
       rpId: window.location.hostname,
       userVerification: 'required',

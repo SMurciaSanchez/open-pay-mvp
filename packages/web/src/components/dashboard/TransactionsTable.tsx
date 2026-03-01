@@ -2,14 +2,14 @@ import { FC } from 'react';
 import { formatCurrency } from '@/lib/utils';
 import { Transaction } from './AccountSummary';
 import Link from 'next/link';
-import { 
-  ArrowDownIcon, 
-  ArrowUpIcon, 
-  ArrowsRightLeftIcon,
-  CheckCircleIcon,
-  ClockIcon,
-  XCircleIcon
-} from '@heroicons/react/24/outline';
+import {
+  ArrowDown as ArrowDownIcon,
+  ArrowUp as ArrowUpIcon,
+  ArrowLeftRight as ArrowsRightLeftIcon,
+  CheckCircle as CheckCircleIcon,
+  Clock as ClockIcon,
+  XCircle as XCircleIcon
+} from 'lucide-react';
 
 interface TransactionsTableProps {
   transactions: Transaction[];

@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { apiClient } from '@/lib/api';
+import { supabase } from '@/lib/supabase';
 
 interface RegisterFormData {
   firstName: string;
@@ -97,27 +97,34 @@ export function RegisterForm() {
     setIsLoading(true);
     
     try {
-      const { confirmPassword, ...registerData } = formData;
-      
-      await apiClient.post('/auth/register', registerData);
-      
+      const { error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            full_name: `${formData.firstName} ${formData.lastName}`,
+            phone: formData.phone,
+          }
+        }
+      });
+
+      if (error) throw error;
+
       toast({
         title: 'Registro exitoso',
-        description: 'Se ha enviado un correo de verificación a tu dirección de email',
-        variant: 'success'
+        description: 'Revisa tu correo para confirmar tu cuenta',
       });
-      
-      // Redirect to verify email page
-      router.push('/auth/verify-email?email=' + encodeURIComponent(formData.email));
+
+      router.push('/login');
     } catch (error: any) {
       console.error('Error de registro:', error);
-      
-      if (error.response?.status === 409) {
+
+      if (error.message?.includes('already registered')) {
         setErrors({ email: 'Este correo electrónico ya está registrado' });
       } else {
         toast({
           title: 'Error de registro',
-          description: error.response?.data?.message || 'Ha ocurrido un error al registrar tu cuenta',
+          description: error.message || 'Ha ocurrido un error al registrar tu cuenta',
           variant: 'destructive'
         });
       }

@@ -1,7 +1,6 @@
 import './globals.css';
 import { Inter, Poppins, JetBrains_Mono } from 'next/font/google';
 import { ReactNode } from 'react';
-import { Chatbot } from '@/components/support/Chatbot';
 import { Toaster } from '@/components/ui/toaster';
 
 // Font configuration
@@ -44,9 +43,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {children}
         </main>
-        
-        {/* Add chatbot component to be available on all pages */}
-        <Chatbot />
         
         {/* Add toaster for notifications */}
         <Toaster />

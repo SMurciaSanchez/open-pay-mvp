@@ -11,7 +11,7 @@ import {
   getStatusColor, 
   getTransactionTypeInfo 
 } from '@/lib/utils';
-import { apiClient } from '@/lib/api';
+import api from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Icons } from '@/components/ui/icons';
@@ -27,13 +27,8 @@ export function RecentTransactions() {
         setLoading(true);
         setError(null);
 
-        const response = await apiClient.get('/transactions/recent');
-        
-        if (response.data.success) {
-          setTransactions(response.data.data);
-        } else {
-          setError(response.data.error || 'Failed to load transactions');
-        }
+        const { transactions } = await api.getTransactions({ limit: 5 });
+        setTransactions(transactions as unknown as Transaction[]);
       } catch (err) {
         setError('An error occurred while fetching transactions');
         console.error(err);

@@ -14,6 +14,8 @@ export type ToastProps = {
   description?: string
   action?: ToastActionElement
   variant?: "default" | "destructive" | "success"
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
 const actionTypes = {

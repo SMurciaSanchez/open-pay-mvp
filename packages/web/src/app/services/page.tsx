@@ -1,17 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { Metadata } from 'next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ServicePaymentForm } from '@/components/services/ServicePaymentForm';
 import { Separator } from '@/components/ui/separator';
 import { Icons } from '@/components/ui/icons';
 
-export const metadata: Metadata = {
-  title: 'Servicios | OpenPay',
-  description: 'Paga tus servicios y gestiona tus suscripciones',
-};
 
 export default function ServicesPage() {
   const [activeTab, setActiveTab] = useState('payment');
@@ -44,7 +39,7 @@ export default function ServicesPage() {
             <CardContent>
               <div className="flex flex-col items-center justify-center py-12 text-center space-y-4">
                 <div className="rounded-full bg-muted p-6">
-                  <Icons.history className="h-12 w-12 text-muted-foreground" />
+                  <Icons.clock className="h-12 w-12 text-muted-foreground" />
                 </div>
                 <h3 className="text-xl font-semibold">No hay pagos recientes</h3>
                 <p className="text-muted-foreground max-w-md">

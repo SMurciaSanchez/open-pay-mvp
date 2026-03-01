@@ -54,7 +54,7 @@ const mockFlaggedTransactionsData = [
 ];
 
 // Custom tooltip for the charts
-const CustomTooltip = ({ active, payload, label, valuePrefix = '', valueSuffix = '' }) => {
+const CustomTooltip = ({ active, payload, label, valuePrefix = '', valueSuffix = '' }: any) => {
   if (active && payload && payload.length) {
     return (
       <div className="custom-tooltip bg-white p-2 border border-gray-200 rounded-md shadow-sm">
@@ -73,7 +73,7 @@ const CustomTooltip = ({ active, payload, label, valuePrefix = '', valueSuffix =
 
 export function Overview() {
   const [activeChart, setActiveChart] = useState('transactions');
-  const [chartData, setChartData] = useState(mockTransactionData);
+  const [chartData, setChartData] = useState<any[]>(mockTransactionData);
   const [period, setPeriod] = useState('year');
 
   useEffect(() => {

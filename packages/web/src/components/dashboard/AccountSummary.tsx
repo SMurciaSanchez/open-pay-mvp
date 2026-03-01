@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { formatCurrency } from '@/lib/utils';
 import Link from 'next/link';
-import { ArrowRightIcon } from '@heroicons/react/24/outline';
+import { ArrowRight as ArrowRightIcon } from 'lucide-react';
 
 export type Transaction = {
   id: string;

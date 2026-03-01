@@ -123,7 +123,7 @@ export default function SupportPage() {
               <div className="space-y-1">
                 <h3 className="text-base font-medium">¿Cómo cambio mi contraseña?</h3>
                 <p className="text-sm text-muted-foreground">
-                  Para cambiar tu contraseña, ve al menú de "Configuración" > "Seguridad" y selecciona la opción "Cambiar contraseña".
+                  Para cambiar tu contraseña, ve al menú de &quot;Configuración&quot; &gt; &quot;Seguridad&quot; y selecciona la opción &quot;Cambiar contraseña&quot;.
                 </p>
               </div>
               
@@ -137,7 +137,7 @@ export default function SupportPage() {
               <div className="space-y-1">
                 <h3 className="text-base font-medium">¿Cómo verifico mi identidad?</h3>
                 <p className="text-sm text-muted-foreground">
-                  Para verificar tu identidad, ve a "Configuración" > "Verificación" y sigue las instrucciones para subir una identificación oficial y completar el proceso.
+                  Para verificar tu identidad, ve a &quot;Configuración&quot; &gt; &quot;Verificación&quot; y sigue las instrucciones para subir una identificación oficial y completar el proceso.
                 </p>
               </div>
               

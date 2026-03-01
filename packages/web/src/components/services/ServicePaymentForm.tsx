@@ -36,7 +36,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, CreditCard, CheckCircle, AlertCircle, Info } from 'lucide-react';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/components/ui/use-toast';
-import { servicesApi, ServiceCategory, ServiceProvider, ServicePayment } from '@/lib/api/services';
+import { servicesApi, ServiceCategory, ServiceProvider, ServicePayment, ServicePaymentRequest } from '@/lib/api/services';
 import { formatCurrency } from '@/lib/utils';
 
 interface ServicePaymentFormProps {
@@ -161,7 +161,7 @@ export function ServicePaymentForm({
     
     try {
       // Make the payment
-      const paymentResult = await servicesApi.makePayment(data);
+      const paymentResult = await servicesApi.makePayment(data as ServicePaymentRequest);
       setPayment(paymentResult);
       
       // Create subscription if requested
@@ -185,7 +185,7 @@ export function ServicePaymentForm({
           toast({
             title: 'Error en suscripción',
             description: 'El pago se realizó, pero no se pudo crear la suscripción',
-            variant: 'warning',
+            variant: 'default',
           });
         }
       }

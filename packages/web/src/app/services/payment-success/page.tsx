@@ -1,13 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { PaymentConfirmation } from '@/components/services/PaymentConfirmation';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import { api } from '@/lib/api';
 
-export default function PaymentSuccessPage() {
+function PaymentSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [payment, setPayment] = useState<any>(null);
@@ -26,10 +25,6 @@ export default function PaymentSuccessPage() {
 
       try {
         setLoading(true);
-        // In a real implementation, you would fetch from your API
-        // const response = await api.get(`/payments/${paymentId}`);
-        // setPayment(response.data);
-        
         // Mock data for demo purposes
         setTimeout(() => {
           setPayment({
@@ -54,7 +49,6 @@ export default function PaymentSuccessPage() {
   }, [paymentId]);
 
   const handleViewReceipt = () => {
-    // In a real implementation, you would generate and download a PDF receipt
     alert('Esta funcionalidad estaría integrada con un generador de PDF');
   };
 
@@ -91,8 +85,8 @@ export default function PaymentSuccessPage() {
   return (
     <div className="container max-w-md mx-auto py-12 px-4">
       <div className="mb-6">
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           onClick={() => router.push('/services')}
           className="pl-0"
         >
@@ -100,12 +94,27 @@ export default function PaymentSuccessPage() {
           Volver a Servicios
         </Button>
       </div>
-      
-      <PaymentConfirmation 
+
+      <PaymentConfirmation
         paymentData={payment}
         onViewReceipt={handleViewReceipt}
         onMakeAnotherPayment={handleMakeAnotherPayment}
       />
     </div>
   );
-} 
+}
+
+export default function PaymentSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="container max-w-md mx-auto py-12 px-4">
+        <div className="flex flex-col items-center justify-center space-y-4">
+          <div className="w-16 h-16 border-4 border-t-primary rounded-full animate-spin"></div>
+          <p className="text-center text-muted-foreground">Cargando...</p>
+        </div>
+      </div>
+    }>
+      <PaymentSuccessContent />
+    </Suspense>
+  );
+}

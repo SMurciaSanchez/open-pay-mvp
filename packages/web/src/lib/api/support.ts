@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+function uuidv4() { return crypto.randomUUID(); }
 
 // Tipos de datos para la API de soporte
 export type FAQItem = {

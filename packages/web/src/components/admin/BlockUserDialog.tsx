@@ -38,7 +38,7 @@ interface BlockUserDialogProps {
     userId: string, 
     reason: string, 
     duration: 'temporary' | 'permanent', 
-    durationDays?: number,
+    durationDays: number | undefined,
     notifyUser: boolean,
     comments?: string
   ) => Promise<void>;

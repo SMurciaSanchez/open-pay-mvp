@@ -5,13 +5,11 @@ import { useRouter } from 'next/navigation';
 import api, { User, Account, Transaction } from '@/lib/api';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import BalanceCard from '@/components/dashboard/BalanceCard';
-import QuickActions from '@/components/dashboard/QuickActions';
-import RecentTransactions from '@/components/dashboard/RecentTransactions';
+import { QuickActions } from '@/components/dashboard/QuickActions';
+import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
 import FinancialInsights from '@/components/dashboard/FinancialInsights';
 import BalanceChart from '@/components/dashboard/BalanceChart';
-import { Metadata } from 'next';
 import AccountSummary from '@/components/dashboard/AccountSummary';
-import TransactionsTable from '@/components/transactions/TransactionsTable';
 import { ArrowDownRight, ArrowUpRight, CreditCard, DollarSign, Download, Users, Send, RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,10 +19,6 @@ import { SendMoneyForm } from '@/components/transactions/SendMoneyForm';
 import { TransactionsList } from '@/components/transactions/TransactionsList';
 import { Toaster } from '@/components/ui/toaster';
 
-export const metadata: Metadata = {
-  title: 'Dashboard | OpenPay',
-  description: 'Administra tu cuenta y revisa tus transacciones',
-};
 
 // Mock data - en producción esto vendría de una API
 const mockAccountData = {

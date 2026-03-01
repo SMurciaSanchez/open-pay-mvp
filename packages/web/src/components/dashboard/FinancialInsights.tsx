@@ -1,6 +1,21 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+
+// Paleta de colores inspirada en Nubank y Nequi
+const colorPalette = [
+  '#8a05be',
+  '#a633d6',
+  '#bf5aea',
+  '#d485fd',
+  '#00b2ff',
+  '#33c2ff',
+  '#5ad2ff',
+  '#85e1ff',
+  '#ff5566',
+  '#ffaa00',
+  '#00cc99',
+];
 import { Transaction } from '@/lib/api';
 import { formatCurrency, truncateText } from '@/lib/utils';
 
@@ -33,20 +48,7 @@ export default function FinancialInsights({
     isIncrease: false,
   });
 
-  // Paleta de colores inspirada en Nubank y Nequi
-  const colorPalette = [
-    '#8a05be', // Púrpura Nubank
-    '#a633d6', 
-    '#bf5aea',
-    '#d485fd',
-    '#00b2ff', // Azul Nequi
-    '#33c2ff',
-    '#5ad2ff',
-    '#85e1ff',
-    '#ff5566', // Rojo
-    '#ffaa00', // Naranja
-    '#00cc99', // Verde
-  ];
+  // colorPalette is defined at module level below
 
   // Reprocesar datos cuando cambian las transacciones o el periodo
   useEffect(() => {
@@ -308,7 +310,7 @@ function filterTransactionsByPeriod(
   
   // Filtrar transacciones dentro del periodo
   return transactions.filter(tx => {
-    const txDate = new Date(tx.created_at);
+    const txDate = new Date(tx.createdAt);
     return txDate >= startDate && txDate <= now;
   });
 }
@@ -330,27 +332,27 @@ function processTransactionsForCategories(
   };
   
   // Solo procesar gastos (withdrawal, payment)
-  const expenses = transactions.filter(tx => 
-    ['withdrawal', 'payment'].includes(tx.transaction_type) && 
+  const expenses = transactions.filter(tx =>
+    ['withdrawal', 'payment'].includes(tx.type) &&
     tx.status !== 'failed'
   );
-  
+
   // Si no hay gastos, retornar datos vacíos
   if (expenses.length === 0) {
     return result;
   }
-  
+
   // Agrupar por categoría
   const categoryAmounts: Record<string, number> = {};
-  
+
   // Calcular total y agrupar por categoría
   expenses.forEach(tx => {
-    const amount = parseFloat(tx.amount);
+    const amount = Number(tx.amount);
     result.totalExpenses += amount;
-    
+
     // Usar descripción o tipo como categoría
     // En una app real, tendríamos categorías específicas
-    const category = tx.description?.split(' ')[0] || tx.transaction_type;
+    const category = tx.description?.split(' ')[0] || tx.type;
     
     if (!categoryAmounts[category]) {
       categoryAmounts[category] = 0;
@@ -382,10 +384,10 @@ function processTransactionsForCategories(
   
   // Calcular gastos del periodo anterior
   transactions.forEach(tx => {
-    const txDate = new Date(tx.created_at);
-    const amount = parseFloat(tx.amount);
-    
-    if (['withdrawal', 'payment'].includes(tx.transaction_type) && 
+    const txDate = new Date(tx.createdAt);
+    const amount = Number(tx.amount);
+
+    if (['withdrawal', 'payment'].includes(tx.type) &&
         tx.status !== 'failed' &&
         txDate >= previous && txDate < current) {
       result.previousExpenses += amount;

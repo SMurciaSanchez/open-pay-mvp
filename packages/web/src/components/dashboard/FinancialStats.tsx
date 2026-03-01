@@ -182,23 +182,23 @@ function calculateStats(transactions: Transaction[]): Stats {
 
   // Process each transaction
   transactions.forEach(transaction => {
-    const amount = parseFloat(transaction.amount);
-    
+    const amount = Number(transaction.amount);
+
     // Skip failed transactions
     if (transaction.status === 'failed') {
       return;
     }
-    
+
     // Categorize as income or expense
-    if (transaction.transaction_type === 'deposit') {
+    if (transaction.type === 'deposit') {
       stats.totalIn += amount;
-    } else if (['withdrawal', 'payment'].includes(transaction.transaction_type)) {
+    } else if (['withdrawal', 'payment'].includes(transaction.type)) {
       stats.totalOut += amount;
-      
+
       // Categorize expenses
       // Note: In a real app, transactions would have categories
-      // Here we're just using transaction_type as a simple category
-      const category = transaction.description?.split(' ')[0] || transaction.transaction_type;
+      // Here we're just using type as a simple category
+      const category = transaction.description?.split(' ')[0] || transaction.type;
       
       if (!stats.categorySummary[category]) {
         stats.categorySummary[category] = 0;

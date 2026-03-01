@@ -7,7 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { User, UserCircle2 } from 'lucide-react';
-import { apiClient } from '@/lib/api';
+import api from '@/lib/api';
+import { updateProfile } from '@/lib/user';
 
 interface ProfileFormData {
   firstName: string;
@@ -20,6 +21,7 @@ export function ProfileForm() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
+  const [profileId, setProfileId] = useState<string | null>(null);
   const [formData, setFormData] = useState<ProfileFormData>({
     firstName: '',
     lastName: '',
@@ -33,13 +35,14 @@ export function ProfileForm() {
     const fetchUserProfile = async () => {
       try {
         setIsFetching(true);
-        const { data } = await apiClient.get('/user/profile');
-        
+        const profile = await api.getProfile();
+        setProfileId(profile.id);
+        const nameParts = (profile.fullName || '').split(' ');
         setFormData({
-          firstName: data.firstName || '',
-          lastName: data.lastName || '',
-          email: data.email || '',
-          phone: data.phone || ''
+          firstName: nameParts[0] || '',
+          lastName: nameParts.slice(1).join(' ') || '',
+          email: profile.email || '',
+          phone: profile.phone || ''
         });
       } catch (error) {
         console.error('Error fetching user profile:', error);
@@ -101,19 +104,23 @@ export function ProfileForm() {
     setIsLoading(true);
 
     try {
-      await apiClient.put('/user/profile', formData);
+      if (profileId) {
+        await updateProfile(profileId, {
+          fullName: `${formData.firstName} ${formData.lastName}`.trim(),
+          phone: formData.phone,
+        });
+      }
 
       toast({
         title: 'Perfil actualizado',
         description: 'Tu información personal ha sido actualizada exitosamente',
-        variant: 'success'
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error al actualizar perfil:', error);
 
       toast({
         title: 'Error al actualizar perfil',
-        description: error.response?.data?.message || 'Ha ocurrido un error al actualizar tu información',
+        description: error instanceof Error ? error.message : 'Ha ocurrido un error al actualizar tu información',
         variant: 'destructive'
       });
     } finally {

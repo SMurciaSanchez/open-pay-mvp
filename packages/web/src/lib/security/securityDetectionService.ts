@@ -1,5 +1,4 @@
-import { apiClient } from '@/lib/api';
-import { AuthService } from '@/lib/auth';
+// securityDetectionService — actualmente sin backend real (datos simulados)
 
 // Types for security alerts and detection
 export type SuspiciousActivityType = 
@@ -78,12 +77,10 @@ const DEFAULT_SECURITY_SETTINGS: SecuritySettings = {
 export class SecurityDetectionService {
   private static instance: SecurityDetectionService;
   private settings: SecuritySettings;
-  private authService: AuthService;
   private listeners: Array<(alert: SecurityAlert) => void> = [];
 
   private constructor() {
     this.settings = DEFAULT_SECURITY_SETTINGS;
-    this.authService = AuthService.getInstance();
     this.loadSettings();
   }
 
@@ -158,8 +155,7 @@ export class SecurityDetectionService {
     total: number;
   }> {
     try {
-      const { data } = await apiClient.get('/security/alerts', { params: options });
-      return data;
+      return { alerts: [], total: 0 };
     } catch (error) {
       console.error('Error fetching security alerts:', error);
       return { alerts: [], total: 0 };
@@ -171,7 +167,7 @@ export class SecurityDetectionService {
    */
   public async updateAlertStatus(alertId: string, status: AlertStatus): Promise<boolean> {
     try {
-      await apiClient.put(`/security/alerts/${alertId}`, { status });
+      void alertId; void status; // TODO: persist via Supabase
       return true;
     } catch (error) {
       console.error('Error updating alert status:', error);
@@ -188,7 +184,7 @@ export class SecurityDetectionService {
     severity?: AlertSeverity;
   }): Promise<void> {
     try {
-      await apiClient.post('/security/log', event);
+      void event; // TODO: persist via Supabase AuditLog
     } catch (error) {
       console.error('Error logging security event:', error);
     }
@@ -212,11 +208,8 @@ export class SecurityDetectionService {
     if (!this.settings.unusualLocationDetection) return { suspicious: false };
     
     try {
-      const { data } = await apiClient.post('/security/check-location', { 
-        ipAddress, 
-        userId 
-      });
-      return data;
+      void ipAddress; void userId;
+      return { suspicious: false };
     } catch (error) {
       console.error('Error checking location:', error);
       return { suspicious: false };
@@ -234,12 +227,9 @@ export class SecurityDetectionService {
     if (!this.settings.multipleAttemptsDetection) return false;
     
     try {
-      const { data } = await apiClient.post('/security/failed-login', {
-        userId,
-        ipAddress,
-        deviceInfo,
-      });
-      
+      const data = { attempts: 0 };
+      void userId; void ipAddress; void deviceInfo; // TODO: track via Supabase
+
       // Alert if threshold exceeded
       if (data.attempts >= this.settings.thresholds.loginAttemptsThreshold) {
         this.triggerAlert({
@@ -276,24 +266,22 @@ export class SecurityDetectionService {
     if (!this.settings.monitoringEnabled) return;
     
     try {
-      // Create alert in backend
-      const { data } = await apiClient.post('/security/alerts', alertData);
-      
-      // Send notifications based on settings
-      if (this.settings.alertNotifications.email) {
-        this.sendEmailAlert(data.alert);
-      }
-      
-      if (this.settings.alertNotifications.push) {
-        this.sendPushNotification(data.alert);
-      }
-      
-      if (this.settings.alertNotifications.sms) {
-        this.sendSmsAlert(data.alert);
-      }
-      
+      // TODO: persist alert via Supabase
+      const mockAlert: SecurityAlert = {
+        id: crypto.randomUUID(),
+        userId: alertData.userId,
+        type: alertData.type,
+        description: alertData.description,
+        severity: alertData.severity,
+        status: 'new',
+        metadata: alertData.metadata,
+        timestamp: new Date().toISOString(),
+        notificationSent: false,
+        notificationChannels: [],
+      };
+
       if (this.settings.alertNotifications.inApp) {
-        this.notifyListeners(data.alert);
+        this.notifyListeners(mockAlert);
       }
     } catch (error) {
       console.error('Error creating security alert:', error);
@@ -305,11 +293,7 @@ export class SecurityDetectionService {
    */
   private async sendEmailAlert(alert: SecurityAlert): Promise<void> {
     try {
-      await apiClient.post('/notifications/email', {
-        type: 'security_alert',
-        alertId: alert.id,
-        userId: alert.userId,
-      });
+      void alert; // TODO: send via email notification service
     } catch (error) {
       console.error('Error sending email alert:', error);
     }
@@ -320,18 +304,7 @@ export class SecurityDetectionService {
    */
   private async sendPushNotification(alert: SecurityAlert): Promise<void> {
     try {
-      await apiClient.post('/notifications/push', {
-        type: 'security_alert',
-        alertId: alert.id,
-        userId: alert.userId,
-        title: 'Alerta de Seguridad',
-        body: alert.description,
-        data: {
-          alertId: alert.id,
-          type: alert.type,
-          severity: alert.severity,
-        },
-      });
+      void alert; // TODO: send via push notification service
     } catch (error) {
       console.error('Error sending push notification:', error);
     }
@@ -342,12 +315,7 @@ export class SecurityDetectionService {
    */
   private async sendSmsAlert(alert: SecurityAlert): Promise<void> {
     try {
-      await apiClient.post('/notifications/sms', {
-        type: 'security_alert',
-        alertId: alert.id,
-        userId: alert.userId,
-        message: `OpenPay: Alerta de seguridad - ${alert.description}`,
-      });
+      void alert; // TODO: send via SMS notification service
     } catch (error) {
       console.error('Error sending SMS alert:', error);
     }

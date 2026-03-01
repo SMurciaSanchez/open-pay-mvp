@@ -88,7 +88,7 @@ export default function DashboardLayout({ user, children }: DashboardLayoutProps
             <div>
               <p className="text-sm font-medium text-neutral-500">¡Bienvenido de nuevo!</p>
               <h1 className="text-2xl font-bold text-neutral-900">
-                {user.first_name} {user.last_name}
+                {user.fullName}
               </h1>
             </div>
             
@@ -108,8 +108,7 @@ export default function DashboardLayout({ user, children }: DashboardLayoutProps
               >
                 {/* If we had an avatar image: <img src={user.avatar} alt={user.name} /> */}
                 <span className="text-base font-medium text-primary-700">
-                  {user.first_name?.charAt(0) || ''}
-                  {user.last_name?.charAt(0) || ''}
+                  {user.fullName?.charAt(0) || ''}
                 </span>
               </Link>
             </div>

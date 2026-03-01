@@ -3,10 +3,6 @@
 import { TransactionsList } from '@/components/transactions/TransactionsList';
 import { Toaster } from '@/components/ui/toaster';
 
-export const metadata = {
-  title: 'Transacciones | OpenPay',
-  description: 'Historial de movimientos en tu cuenta OpenPay',
-};
 
 export default function TransactionsPage() {
   return (

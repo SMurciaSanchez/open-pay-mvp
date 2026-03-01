@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import ServicePaymentForm from '@/components/services/ServicePaymentForm';
+import { ServicePaymentForm } from '@/components/services/ServicePaymentForm';
 
 export const metadata: Metadata = {
   title: 'Service Payment | OpenPay',

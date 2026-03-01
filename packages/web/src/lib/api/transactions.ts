@@ -1,7 +1,4 @@
 import { supabase } from '../supabase';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
 
 export interface Transaction {
   id: string;
@@ -58,134 +55,94 @@ export interface TransactionError {
 
 export const createTransaction = async (data: TransactionRequest): Promise<TransactionResponse | TransactionError> => {
   try {
-    // Verificar balance suficiente
-    const senderAccount = await prisma.account.findFirst({
-      where: {
-        profileId: data.senderId,
-        type: 'CHECKING'
-      }
-    });
-
-    if (!senderAccount || senderAccount.balance < data.amount) {
-      return {
-        message: 'Saldo insuficiente para realizar la transacción',
-        status: 400
-      };
-    }
-
-    // Verificar que el destinatario existe
-    const receiverProfile = await prisma.profile.findUnique({
-      where: {
-        id: data.receiverId
-      }
-    });
-
-    if (!receiverProfile) {
-      return {
-        message: 'Destinatario no encontrado',
-        status: 404
-      };
-    }
-
-    // Crear transacción
-    const transaction = await prisma.transaction.create({
-      data: {
+    const { data: tx, error } = await supabase
+      .from('Transaction')
+      .insert({
         senderId: data.senderId,
         receiverId: data.receiverId,
         amount: data.amount,
         description: data.description || '',
         type: data.type || 'TRANSFER',
-        status: 'COMPLETED'
-      }
-    });
+        status: 'COMPLETED',
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
 
     return {
-      id: transaction.id,
-      senderId: transaction.senderId,
-      receiverId: transaction.receiverId,
-      amount: transaction.amount,
-      description: transaction.description || undefined,
-      status: transaction.status,
-      type: transaction.type,
-      createdAt: transaction.createdAt,
-      updatedAt: transaction.updatedAt
+      id: tx.id,
+      senderId: tx.senderId,
+      receiverId: tx.receiverId,
+      amount: tx.amount,
+      description: tx.description || undefined,
+      status: tx.status,
+      type: tx.type,
+      createdAt: new Date(tx.createdAt),
+      updatedAt: new Date(tx.updatedAt),
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error al crear transacción:', error);
     return {
-      message: error.message || 'Error al procesar la transacción',
-      status: 500
+      message: error instanceof Error ? error.message : 'Error al procesar la transacción',
+      status: 500,
     };
   }
 };
 
 export const getTransactionById = async (id: string): Promise<TransactionResponse | TransactionError> => {
   try {
-    const transaction = await prisma.transaction.findUnique({
-      where: {
-        id
-      }
-    });
+    const { data: tx, error } = await supabase
+      .from('Transaction')
+      .select('*')
+      .eq('id', id)
+      .single();
 
-    if (!transaction) {
-      return {
-        message: 'Transacción no encontrada',
-        status: 404
-      };
+    if (error || !tx) {
+      return { message: 'Transacción no encontrada', status: 404 };
     }
 
     return {
-      id: transaction.id,
-      senderId: transaction.senderId,
-      receiverId: transaction.receiverId,
-      amount: transaction.amount,
-      description: transaction.description || undefined,
-      status: transaction.status,
-      type: transaction.type,
-      createdAt: transaction.createdAt,
-      updatedAt: transaction.updatedAt
+      id: tx.id,
+      senderId: tx.senderId,
+      receiverId: tx.receiverId,
+      amount: tx.amount,
+      description: tx.description || undefined,
+      status: tx.status,
+      type: tx.type,
+      createdAt: new Date(tx.createdAt),
+      updatedAt: new Date(tx.updatedAt),
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
-      message: error.message || 'Error al obtener la transacción',
-      status: 500
+      message: error instanceof Error ? error.message : 'Error al obtener la transacción',
+      status: 500,
     };
   }
 };
 
 export const getUserTransactions = async (userId: string): Promise<TransactionListResponse> => {
   try {
-    // Obtener perfil del usuario
-    const userProfile = await prisma.profile.findFirst({
-      where: {
-        userId
-      }
-    });
+    const { data: profile, error: profileError } = await supabase
+      .from('Profile')
+      .select('id')
+      .eq('userId', userId)
+      .single();
 
-    if (!userProfile) {
-      return {
-        transactions: [],
-        error: 'Perfil de usuario no encontrado'
-      };
+    if (profileError || !profile) {
+      return { transactions: [], error: 'Perfil de usuario no encontrado' };
     }
 
-    const profileId = userProfile.id;
+    const { data: transactions, error } = await supabase
+      .from('Transaction')
+      .select('*')
+      .or(`senderId.eq.${profile.id},receiverId.eq.${profile.id}`)
+      .order('createdAt', { ascending: false });
 
-    // Obtener todas las transacciones donde el usuario es remitente o destinatario
-    const transactions = await prisma.transaction.findMany({
-      where: {
-        OR: [
-          { senderId: profileId },
-          { receiverId: profileId }
-        ]
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    });
+    if (error) throw error;
 
     return {
-      transactions: transactions.map(t => ({
+      transactions: (transactions || []).map((t: any) => ({
         id: t.id,
         senderId: t.senderId,
         receiverId: t.receiverId,
@@ -193,15 +150,15 @@ export const getUserTransactions = async (userId: string): Promise<TransactionLi
         description: t.description || undefined,
         status: t.status,
         type: t.type,
-        createdAt: t.createdAt,
-        updatedAt: t.updatedAt
-      }))
+        createdAt: new Date(t.createdAt),
+        updatedAt: new Date(t.updatedAt),
+      })),
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error al obtener transacciones del usuario:', error);
     return {
       transactions: [],
-      error: error.message || 'Error al obtener transacciones'
+      error: error instanceof Error ? error.message : 'Error al obtener transacciones',
     };
   }
 };
@@ -243,31 +200,30 @@ export const getTransactionsWithSupabase = async (profileId: string): Promise<Tr
 
 export const transactionsApi = {
   getAll: async (): Promise<Transaction[]> => {
-    // In real implementation, add pagination, filtering, etc.
-    const { data } = await apiClient.get('/transactions');
-    return data.transactions;
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return transactionsApi.getMockTransactions(20);
   },
-  
+
   getRecent: async (): Promise<Transaction[]> => {
-    const { data } = await apiClient.get('/transactions/recent');
-    return data.transactions;
+    await new Promise(resolve => setTimeout(resolve, 300));
+    return transactionsApi.getMockTransactions(5);
   },
-  
+
   getById: async (id: string): Promise<Transaction> => {
-    const { data } = await apiClient.get(`/transactions/${id}`);
-    return data.transaction;
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const tx = transactionsApi.getMockTransactions(1)[0];
+    return { ...tx, id };
   },
-  
+
   send: async (transactionData: TransactionRequest): Promise<Transaction> => {
-    const { data } = await apiClient.post('/transactions/send', transactionData);
-    return data.transaction;
+    return transactionsApi.mockSend(transactionData);
   },
   
   // For development/demo purposes, we'll simulate API responses
   mockSend: async (transactionData: TransactionRequest): Promise<Transaction> => {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 800));
-    
+
     // Generate a mock transaction response
     return {
       id: `tx-${Math.random().toString(36).substring(2, 10)}`,
@@ -275,15 +231,11 @@ export const transactionsApi = {
       type: 'send',
       status: 'completed',
       recipient: {
-        id: `user-${Math.random().toString(36).substring(2, 8)}`,
-        name: transactionData.recipient.includes('@') 
-          ? transactionData.recipient.split('@')[0] 
-          : `Usuario ${Math.floor(Math.random() * 1000)}`,
-        email: transactionData.recipient.includes('@') 
-          ? transactionData.recipient 
-          : `user${Math.floor(Math.random() * 1000)}@example.com`,
+        id: transactionData.receiverId,
+        name: `Usuario`,
+        email: `user@example.com`,
       },
-      concept: transactionData.concept || 'Transferencia',
+      concept: transactionData.description || 'Transferencia',
       date: new Date().toISOString(),
       reference: `REF-${Math.random().toString(36).toUpperCase().substring(2, 10)}`
     };

@@ -3605,6 +3605,7 @@ export namespace Prisma {
     description: string | null
     status: string | null
     type: string | null
+    idempotencyKey: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -3617,6 +3618,7 @@ export namespace Prisma {
     description: string | null
     status: string | null
     type: string | null
+    idempotencyKey: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -3629,6 +3631,7 @@ export namespace Prisma {
     description: number
     status: number
     type: number
+    idempotencyKey: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -3651,6 +3654,7 @@ export namespace Prisma {
     description?: true
     status?: true
     type?: true
+    idempotencyKey?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -3663,6 +3667,7 @@ export namespace Prisma {
     description?: true
     status?: true
     type?: true
+    idempotencyKey?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -3675,6 +3680,7 @@ export namespace Prisma {
     description?: true
     status?: true
     type?: true
+    idempotencyKey?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -3774,6 +3780,7 @@ export namespace Prisma {
     description: string | null
     status: string
     type: string
+    idempotencyKey: string | null
     createdAt: Date
     updatedAt: Date
     _count: TransactionCountAggregateOutputType | null
@@ -3805,6 +3812,7 @@ export namespace Prisma {
     description?: boolean
     status?: boolean
     type?: boolean
+    idempotencyKey?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     sender?: boolean | ProfileDefaultArgs<ExtArgs>
@@ -3819,6 +3827,7 @@ export namespace Prisma {
     description?: boolean
     status?: boolean
     type?: boolean
+    idempotencyKey?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     sender?: boolean | ProfileDefaultArgs<ExtArgs>
@@ -3833,6 +3842,7 @@ export namespace Prisma {
     description?: boolean
     status?: boolean
     type?: boolean
+    idempotencyKey?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     sender?: boolean | ProfileDefaultArgs<ExtArgs>
@@ -3847,11 +3857,12 @@ export namespace Prisma {
     description?: boolean
     status?: boolean
     type?: boolean
+    idempotencyKey?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type TransactionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "senderId" | "receiverId" | "amount" | "description" | "status" | "type" | "createdAt" | "updatedAt", ExtArgs["result"]["transaction"]>
+  export type TransactionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "senderId" | "receiverId" | "amount" | "description" | "status" | "type" | "idempotencyKey" | "createdAt" | "updatedAt", ExtArgs["result"]["transaction"]>
   export type TransactionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     sender?: boolean | ProfileDefaultArgs<ExtArgs>
     receiver?: boolean | ProfileDefaultArgs<ExtArgs>
@@ -3879,6 +3890,7 @@ export namespace Prisma {
       description: string | null
       status: string
       type: string
+      idempotencyKey: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["transaction"]>
@@ -4313,6 +4325,7 @@ export namespace Prisma {
     readonly description: FieldRef<"Transaction", 'String'>
     readonly status: FieldRef<"Transaction", 'String'>
     readonly type: FieldRef<"Transaction", 'String'>
+    readonly idempotencyKey: FieldRef<"Transaction", 'String'>
     readonly createdAt: FieldRef<"Transaction", 'DateTime'>
     readonly updatedAt: FieldRef<"Transaction", 'DateTime'>
   }
@@ -6907,6 +6920,7 @@ export namespace Prisma {
     description: 'description',
     status: 'status',
     type: 'type',
+    idempotencyKey: 'idempotencyKey',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -7191,6 +7205,7 @@ export namespace Prisma {
     description?: StringNullableFilter<"Transaction"> | string | null
     status?: StringFilter<"Transaction"> | string
     type?: StringFilter<"Transaction"> | string
+    idempotencyKey?: StringNullableFilter<"Transaction"> | string | null
     createdAt?: DateTimeFilter<"Transaction"> | Date | string
     updatedAt?: DateTimeFilter<"Transaction"> | Date | string
     sender?: XOR<ProfileScalarRelationFilter, ProfileWhereInput>
@@ -7205,6 +7220,7 @@ export namespace Prisma {
     description?: SortOrderInput | SortOrder
     status?: SortOrder
     type?: SortOrder
+    idempotencyKey?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     sender?: ProfileOrderByWithRelationInput
@@ -7213,6 +7229,7 @@ export namespace Prisma {
 
   export type TransactionWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    idempotencyKey?: string
     AND?: TransactionWhereInput | TransactionWhereInput[]
     OR?: TransactionWhereInput[]
     NOT?: TransactionWhereInput | TransactionWhereInput[]
@@ -7226,7 +7243,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Transaction"> | Date | string
     sender?: XOR<ProfileScalarRelationFilter, ProfileWhereInput>
     receiver?: XOR<ProfileScalarRelationFilter, ProfileWhereInput>
-  }, "id">
+  }, "id" | "idempotencyKey">
 
   export type TransactionOrderByWithAggregationInput = {
     id?: SortOrder
@@ -7236,6 +7253,7 @@ export namespace Prisma {
     description?: SortOrderInput | SortOrder
     status?: SortOrder
     type?: SortOrder
+    idempotencyKey?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: TransactionCountOrderByAggregateInput
@@ -7256,6 +7274,7 @@ export namespace Prisma {
     description?: StringNullableWithAggregatesFilter<"Transaction"> | string | null
     status?: StringWithAggregatesFilter<"Transaction"> | string
     type?: StringWithAggregatesFilter<"Transaction"> | string
+    idempotencyKey?: StringNullableWithAggregatesFilter<"Transaction"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Transaction"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Transaction"> | Date | string
   }
@@ -7577,6 +7596,7 @@ export namespace Prisma {
     description?: string | null
     status?: string
     type?: string
+    idempotencyKey?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     sender: ProfileCreateNestedOneWithoutSentTransactionsInput
@@ -7591,6 +7611,7 @@ export namespace Prisma {
     description?: string | null
     status?: string
     type?: string
+    idempotencyKey?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -7601,6 +7622,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sender?: ProfileUpdateOneRequiredWithoutSentTransactionsNestedInput
@@ -7615,6 +7637,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7627,6 +7650,7 @@ export namespace Prisma {
     description?: string | null
     status?: string
     type?: string
+    idempotencyKey?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -7637,6 +7661,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7649,6 +7674,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -8051,6 +8077,7 @@ export namespace Prisma {
     description?: SortOrder
     status?: SortOrder
     type?: SortOrder
+    idempotencyKey?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -8067,6 +8094,7 @@ export namespace Prisma {
     description?: SortOrder
     status?: SortOrder
     type?: SortOrder
+    idempotencyKey?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -8079,6 +8107,7 @@ export namespace Prisma {
     description?: SortOrder
     status?: SortOrder
     type?: SortOrder
+    idempotencyKey?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -8551,6 +8580,7 @@ export namespace Prisma {
     description?: string | null
     status?: string
     type?: string
+    idempotencyKey?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     receiver: ProfileCreateNestedOneWithoutReceivedTransactionsInput
@@ -8563,6 +8593,7 @@ export namespace Prisma {
     description?: string | null
     status?: string
     type?: string
+    idempotencyKey?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -8583,6 +8614,7 @@ export namespace Prisma {
     description?: string | null
     status?: string
     type?: string
+    idempotencyKey?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     sender: ProfileCreateNestedOneWithoutSentTransactionsInput
@@ -8595,6 +8627,7 @@ export namespace Prisma {
     description?: string | null
     status?: string
     type?: string
+    idempotencyKey?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -8666,6 +8699,7 @@ export namespace Prisma {
     description?: StringNullableFilter<"Transaction"> | string | null
     status?: StringFilter<"Transaction"> | string
     type?: StringFilter<"Transaction"> | string
+    idempotencyKey?: StringNullableFilter<"Transaction"> | string | null
     createdAt?: DateTimeFilter<"Transaction"> | Date | string
     updatedAt?: DateTimeFilter<"Transaction"> | Date | string
   }
@@ -8927,6 +8961,7 @@ export namespace Prisma {
     description?: string | null
     status?: string
     type?: string
+    idempotencyKey?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -8938,6 +8973,7 @@ export namespace Prisma {
     description?: string | null
     status?: string
     type?: string
+    idempotencyKey?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -8958,6 +8994,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     receiver?: ProfileUpdateOneRequiredWithoutReceivedTransactionsNestedInput
@@ -8970,6 +9007,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -8981,6 +9019,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -8991,6 +9030,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sender?: ProfileUpdateOneRequiredWithoutSentTransactionsNestedInput
@@ -9003,6 +9043,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -9014,6 +9055,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

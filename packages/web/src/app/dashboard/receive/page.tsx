@@ -11,7 +11,7 @@ export default function ReceiveMoneyPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [accounts, setAccounts] = useState<Account[]>([]);
-  const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
+  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -141,15 +141,15 @@ export default function ReceiveMoneyPage() {
                   </div>
                   <div className="flex-1 text-left">
                     <p className="font-medium text-neutral-900">
-                      {account.account_type} {account.account_number.slice(-4)}
+                      {account.type} {account.number.slice(-4)}
                     </p>
                     <p className="text-sm text-neutral-500">
-                      {new Intl.NumberFormat('es-CO', { 
-                        style: 'currency', 
-                        currency: account.currency,
+                      {new Intl.NumberFormat('es-MX', {
+                        style: 'currency',
+                        currency: 'MXN',
                         minimumFractionDigits: 0,
                         maximumFractionDigits: 0
-                      }).format(parseFloat(account.available_balance))}
+                      }).format(account.balance)}
                     </p>
                   </div>
                 </button>

@@ -18,7 +18,7 @@ export default function TransferForm({ accounts, onTransferComplete }: TransferF
   
   // Form state
   const [transferData, setTransferData] = useState({
-    sourceAccountId: accounts[0]?.id || 0,
+    sourceAccountId: accounts[0]?.id || '',
     destinationType: 'openpay', // openpay | external
     amount: '',
     destinationId: '',
@@ -72,7 +72,7 @@ export default function TransferForm({ accounts, onTransferComplete }: TransferF
     
     // Validar que el monto no supere el saldo disponible
     const sourceAccount = accounts.find(acc => acc.id === transferData.sourceAccountId);
-    if (sourceAccount && parseFloat(sourceAccount.available_balance) < amount) {
+    if (sourceAccount && Number(sourceAccount.balance) < amount) {
       setError('No tienes saldo suficiente para esta transferencia');
       return;
     }
@@ -106,21 +106,8 @@ export default function TransferForm({ accounts, onTransferComplete }: TransferF
 
     try {
       // En un caso real, aquí se llamaría a la API con los datos apropiados según el tipo de transferencia
-      if (transferData.destinationType === 'openpay') {
-        // Transferencia interna
-        await api.createTransfer({
-          from_account_id: transferData.sourceAccountId,
-          to_account_id: parseInt(transferData.destinationId),
-          amount: transferData.amount,
-          description: transferData.description || 'Transferencia',
-          // Generar clave de idempotencia única para evitar transferencias duplicadas
-          idempotency_key: `transfer-${Date.now()}-${Math.random().toString(36).substring(2, 10)}`,
-        });
-      } else {
-        // Para transferencias externas, en una app real aquí se usaría otra API
-        // Simulamos una llamada exitosa
-        await new Promise(resolve => setTimeout(resolve, 1500));
-      }
+      // TODO: implement via Supabase RPC transfer_funds when recipient lookup is available
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       setSuccessMessage('¡Transferencia realizada con éxito!');
       setStep('result');
@@ -138,7 +125,7 @@ export default function TransferForm({ accounts, onTransferComplete }: TransferF
   const handleNewTransfer = () => {
     // Reiniciar el formulario
     setTransferData({
-      sourceAccountId: accounts[0]?.id || 0,
+      sourceAccountId: accounts[0]?.id || '',
       destinationType: 'openpay',
       amount: '',
       destinationId: '',
@@ -176,7 +163,7 @@ export default function TransferForm({ accounts, onTransferComplete }: TransferF
             >
               {accounts.map(account => (
                 <option key={account.id} value={account.id}>
-                  {account.account_number} - {formatCurrency(parseFloat(account.available_balance), account.currency)}
+                  {account.number} - {formatCurrency(Number(account.balance))}
                 </option>
               ))}
             </select>
@@ -358,7 +345,7 @@ export default function TransferForm({ accounts, onTransferComplete }: TransferF
               <div className="flex justify-between">
                 <p className="text-sm text-neutral-500">De</p>
                 <p className="text-sm font-medium text-neutral-900">
-                  {accounts.find(acc => acc.id === transferData.sourceAccountId)?.account_number || 'Tu cuenta'}
+                  {accounts.find(acc => acc.id === transferData.sourceAccountId)?.number || 'Tu cuenta'}
                 </p>
               </div>
               

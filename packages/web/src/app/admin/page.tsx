@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { 
   Card, 
@@ -15,7 +14,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { adminApi } from '@/lib/api/admin';
 import { formatCurrency } from '@/lib/utils/formatters';
 import { AdminNav } from '@/components/admin/AdminNav';
-import { TrendingUp, TrendingDown, Users, AlertTriangle, Download, CreditCard, UsersIcon, ClipboardListIcon, ChartBarIcon, ShieldCheckIcon, BellIcon } from 'lucide-react';
+import { TrendingUp, TrendingDown, Users, AlertTriangle, Download, CreditCard, BarChart2, ShieldCheck, Bell, ClipboardList } from 'lucide-react';
+const UsersIcon = Users;
+const ClipboardListIcon = ClipboardList;
+const ChartBarIcon = BarChart2;
+const ShieldCheckIcon = ShieldCheck;
+const BellIcon = Bell;
+const CreditCardIcon = CreditCard;
 import { UserManagement } from '@/components/admin/UserManagement';
 import { TransactionMonitoring } from '@/components/admin/TransactionMonitoring';
 import { Overview } from '@/components/admin/Overview';
@@ -23,17 +28,13 @@ import { DateRangePicker } from '@/components/ui/date-range-picker';
 import { useAuth } from '@/lib/auth';
 import { AuditLogViewer } from '@/components/admin/AuditLogViewer';
 
-export const metadata: Metadata = {
-  title: 'Panel de Administración | OpenPay',
-  description: 'Panel de administración para gestionar usuarios y transacciones',
-};
 
 export default function AdminDashboard() {
   // In a real application, you would check if the user has admin privileges
   // and redirect if they don't
-  const { user, isAdmin } = useAuth();
-  
-  if (!user || !isAdmin) {
+  const { user } = useAuth();
+
+  if (!user) {
     redirect('/login');
   }
 

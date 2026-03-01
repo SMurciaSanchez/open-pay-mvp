@@ -3,9 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/components/ui/use-toast';
 import { Clock, Globe, Monitor, AlertTriangle } from 'lucide-react';
-import { apiClient } from '@/lib/api';
 import { formatRelativeTime } from '@/lib/utils';
 
 interface ActivityEvent {
@@ -18,7 +16,6 @@ interface ActivityEvent {
 }
 
 export function ActivityHistory() {
-  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [activities, setActivities] = useState<ActivityEvent[]>([]);
 
@@ -27,22 +24,17 @@ export function ActivityHistory() {
     const fetchActivityHistory = async () => {
       try {
         setIsLoading(true);
-        const { data } = await apiClient.get('/user/activity');
-        setActivities(data.activities || []);
+        // TODO: fetch from Supabase AuditLog when endpoint is ready
+        setActivities([]);
       } catch (error) {
         console.error('Error fetching activity history:', error);
-        toast({
-          title: 'Error',
-          description: 'No se pudo cargar tu historial de actividad',
-          variant: 'destructive'
-        });
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchActivityHistory();
-  }, [toast]);
+  }, []);
 
   const getEventIcon = (eventType: ActivityEvent['eventType']) => {
     switch (eventType) {

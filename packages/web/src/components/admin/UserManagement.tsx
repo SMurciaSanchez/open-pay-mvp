@@ -62,7 +62,6 @@ import {
   Lock,
   Unlock,
   Edit,
-  Unlock,
   UserPlus
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';

@@ -147,6 +147,7 @@ exports.Prisma.TransactionScalarFieldEnum = {
   description: 'description',
   status: 'status',
   type: 'type',
+  idempotencyKey: 'idempotencyKey',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
