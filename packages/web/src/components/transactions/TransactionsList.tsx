@@ -97,16 +97,17 @@ export function TransactionsList({ limit, showViewAll = true }: TransactionsList
   };
 
   return (
-    <Card>
+    <Card className="card-shadow border-slate-200 rounded-2xl bg-white">
       <CardHeader>
         <CardTitle>Transacciones</CardTitle>
         <CardDescription>
-          Historial de movimientos en tu cuenta OpenPay
+          Recent transactions · Transactions list
         </CardDescription>
       </CardHeader>
       <CardContent>
         {loading ? (
           <div className="space-y-4">
+            <p className="text-xs text-muted-foreground">Cargando transacciones...</p>
             {Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="flex items-center gap-4 p-2">
                 <Skeleton className="h-10 w-10 rounded-full" />
@@ -132,7 +133,7 @@ export function TransactionsList({ limit, showViewAll = true }: TransactionsList
         ) : transactions.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <CreditCard className="h-12 w-12 text-muted-foreground" />
-            <h3 className="mt-4 text-lg font-semibold">No hay transacciones aún</h3>
+            <h3 className="mt-4 text-lg font-semibold">No hay transacciones</h3>
             <p className="text-sm text-muted-foreground">
               Realiza tu primera transacción para verla aquí
             </p>
@@ -142,7 +143,7 @@ export function TransactionsList({ limit, showViewAll = true }: TransactionsList
             {transactions.map((transaction) => (
               <div 
                 key={transaction.id} 
-                className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-md cursor-pointer transition-colors"
+                className="flex items-center justify-between p-3 hover:bg-secondary rounded-lg cursor-pointer transition-colors"
                 onClick={() => handleViewTransaction(transaction.id)}
               >
                 <div className="flex items-center gap-3">

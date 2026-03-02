@@ -8,11 +8,17 @@ export const metadata: Metadata = {
 
 export default function TransfersPage() {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Transferencias Bancarias</h1>
-        <TransferForm />
+    <div className="px-5 py-6 lg:px-8 lg:py-8 max-w-2xl mx-auto">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="h-10 w-10 rounded-xl bg-blue-100 flex items-center justify-center">
+          <span className="text-blue-600 text-lg">↔</span>
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Transferencias Bancarias</h1>
+          <p className="text-slate-500 text-sm">Enviar dinero de forma segura y rápida</p>
+        </div>
       </div>
+      <TransferForm />
     </div>
   );
 } 

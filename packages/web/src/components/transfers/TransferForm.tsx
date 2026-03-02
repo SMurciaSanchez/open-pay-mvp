@@ -104,24 +104,32 @@ export default function TransferForm() {
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border border-neutral-200">
       <div className="mb-6">
-        <h2 className="text-lg font-medium text-neutral-900">Realizar Transferencia</h2>
-        <div className="mt-2 flex justify-between">
-          {[1, 2, 3, 4].map((stepNumber) => (
+        <h2 className="text-lg font-medium text-neutral-900">Enviar dinero</h2>
+        <div className="mt-2 flex justify-between items-start">
+          {[
+            { num: 1, label: 'Destinatario' },
+            { num: 2, label: 'Cantidad' },
+            { num: 3, label: 'Verificación' },
+            { num: 4, label: 'Confirmar' },
+          ].map(({ num: stepNumber, label }) => (
             <div key={stepNumber} className="flex items-center">
-              <div
-                className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${
-                  stepNumber === step
-                    ? 'bg-primary-600 text-white'
-                    : stepNumber < step
-                    ? 'bg-primary-200 text-primary-800'
-                    : 'bg-neutral-200 text-neutral-500'
-                }`}
-              >
-                {stepNumber}
+              <div className="flex flex-col items-center gap-1">
+                <div
+                  className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${
+                    stepNumber === step
+                      ? 'bg-primary-600 text-white'
+                      : stepNumber < step
+                      ? 'bg-primary-200 text-primary-800'
+                      : 'bg-neutral-200 text-neutral-500'
+                  }`}
+                >
+                  {stepNumber}
+                </div>
+                <span className="text-xs text-neutral-500">{label}</span>
               </div>
               {stepNumber < 4 && (
                 <div
-                  className={`h-0.5 w-8 ${
+                  className={`h-0.5 w-8 mb-4 ${
                     stepNumber < step ? 'bg-primary-200' : 'bg-neutral-200'
                   }`}
                 ></div>
@@ -166,7 +174,7 @@ export default function TransferForm() {
 
       {step === 2 && (
         <div>
-          <h3 className="text-base font-medium text-neutral-900">Monto</h3>
+          <h3 className="text-base font-medium text-neutral-900">Cantidad</h3>
           <div className="mt-4">
             <div className="relative rounded-md shadow-sm">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -55,19 +56,24 @@ const paymentFormSchema = z.object({
   amount: z.coerce.number({
     required_error: 'Por favor, ingresa un monto',
     invalid_type_error: 'Por favor, ingresa un número válido',
-  }).min(1, 'El monto debe ser mayor a 0'),
+  }).min(1, 'Monto inválido — debe ser mayor a 0')
+    .refine(val => {
+      const decimals = val.toString().split('.')[1];
+      return !decimals || decimals.length <= 2;
+    }, 'Monto inválido — máximo 2 decimales permitidos'),
   description: z.string().optional(),
   saveAsSubscription: z.boolean().default(false),
   subscriptionName: z.string().optional(),
   subscriptionFrequency: z.enum(['weekly', 'monthly', 'bimonthly', 'quarterly', 'yearly']).optional(),
 });
 
-export function ServicePaymentForm({ 
-  defaultCategory, 
+export function ServicePaymentForm({
+  defaultCategory,
   defaultProviderId,
-  onSuccess 
+  onSuccess
 }: ServicePaymentFormProps) {
   const { toast } = useToast();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [categories, setCategories] = useState<{ value: ServiceCategory; label: string }[]>([
     { value: 'mobile_recharge', label: 'Recarga de celular' },
@@ -163,7 +169,10 @@ export function ServicePaymentForm({
       // Make the payment
       const paymentResult = await servicesApi.makePayment(data as ServicePaymentRequest);
       setPayment(paymentResult);
-      
+
+      // Redirect to payment-success page
+      router.push('/services/payment-success');
+
       // Create subscription if requested
       if (data.saveAsSubscription && data.subscriptionName && data.subscriptionFrequency) {
         try {

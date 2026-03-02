@@ -40,7 +40,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en" className={`${inter.variable} ${poppins.variable} ${jetbrainsMono.variable}`}>
       <body className="min-h-screen bg-neutral-50 font-sans text-neutral-900">
         {/* Providers will be added here (auth, themes, etc.) */}
-        <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <main>
           {children}
         </main>
         

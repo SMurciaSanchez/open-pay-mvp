@@ -114,7 +114,7 @@ const mockServiceProviders: ServiceProvider[] = [
   },
   {
     id: 'cfe',
-    name: 'CFE',
+    name: 'Electricidad CFE',
     category: 'utilities',
     logo: '/logos/cfe.png',
     requiresAccountNumber: true,

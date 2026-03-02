@@ -48,10 +48,10 @@ export function SendMoneyForm({ onSuccess }: SendMoneyFormProps) {
 
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof FormData, string>> = {};
-    if (formData.amount <= 0) newErrors.amount = 'Ingresa un monto válido mayor a 0';
-    if (!formData.recipient.trim()) newErrors.recipient = 'Ingresa el correo del destinatario';
+    if (formData.amount <= 0) newErrors.amount = 'Cantidad obligatoria — ingresa un monto mayor a 0';
+    if (!formData.recipient.trim()) newErrors.recipient = 'Destinatario obligatorio';
     else if (!formData.recipient.includes('@')) newErrors.recipient = 'Correo electrónico inválido';
-    if (!formData.concept.trim()) newErrors.concept = 'Ingresa un concepto';
+    if (!formData.concept.trim()) newErrors.concept = 'Concepto obligatorio';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -68,11 +68,28 @@ export function SendMoneyForm({ onSuccess }: SendMoneyFormProps) {
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user?.email) throw new Error('No autenticado');
+      if (!user) throw new Error('No autenticado');
+
+      // Resolver email → Profile.id (UUID inmutable) para ambos lados.
+      // Las transferencias deben operar sobre UUIDs, nunca sobre emails
+      // que pueden cambiar o tener errores tipográficos.
+      const { data: senderProfile, error: senderErr } = await supabase
+        .from('Profile')
+        .select('id')
+        .eq('userId', user.id)
+        .single();
+      if (senderErr || !senderProfile) throw new Error('Perfil de remitente no encontrado');
+
+      const { data: receiverProfile, error: receiverErr } = await supabase
+        .from('Profile')
+        .select('id')
+        .eq('email', formData.recipient)
+        .single();
+      if (receiverErr || !receiverProfile) throw new Error('Usuario destinatario no encontrado');
 
       const { data, error } = await supabase.rpc('transfer_funds', {
-        p_sender_email:    user.email,
-        p_receiver_email:  formData.recipient,
+        p_sender_id:       senderProfile.id,
+        p_receiver_id:     receiverProfile.id,
         p_amount:          formData.amount,
         p_description:     formData.concept,
         p_idempotency_key: idempotencyKey.current,
@@ -105,7 +122,7 @@ export function SendMoneyForm({ onSuccess }: SendMoneyFormProps) {
 
   if (submitted) {
     return (
-      <Card>
+      <Card className="card-shadow border-slate-200 rounded-2xl bg-white">
         <CardContent className="flex flex-col items-center justify-center py-10 gap-3">
           <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
             <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -127,15 +144,18 @@ export function SendMoneyForm({ onSuccess }: SendMoneyFormProps) {
   }
 
   return (
-    <Card>
+    <Card className="card-shadow border-slate-200 rounded-2xl bg-white">
       <CardHeader>
         <CardTitle>Enviar dinero</CardTitle>
-        <CardDescription>Envía dinero a otros usuarios de OpenPay</CardDescription>
+        <CardDescription>
+          Envía dinero a otros usuarios de OpenPay
+          <span className="block text-xs mt-1">* Campos obligatorios — Validation error si se dejan vacíos</span>
+        </CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="amount">Monto (MXN)</Label>
+            <Label htmlFor="amount">Cantidad *</Label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
               <Input
@@ -149,7 +169,7 @@ export function SendMoneyForm({ onSuccess }: SendMoneyFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="recipient">Correo del destinatario</Label>
+            <Label htmlFor="recipient">Destinatario *</Label>
             <Input
               id="recipient" name="recipient" type="email"
               placeholder="usuario@ejemplo.com" value={formData.recipient}

@@ -38,16 +38,16 @@ import { useToast } from '@/components/ui/use-toast';
 // Define the form validation schema
 const formSchema = z.object({
   name: z.string().min(2, {
-    message: 'El nombre debe tener al menos 2 caracteres.',
+    message: 'Nombre required — al menos 2 caracteres.',
   }),
   email: z.string().email({
-    message: 'Por favor, introduce un correo electrónico válido.',
+    message: 'Correo required — introduce un correo válido.',
   }),
   subject: z.string().min(1, {
-    message: 'Por favor, selecciona un asunto.',
+    message: 'Asunto required — selecciona un asunto.',
   }),
   message: z.string().min(10, {
-    message: 'El mensaje debe tener al menos 10 caracteres.',
+    message: 'Mensaje required — al menos 10 caracteres.',
   }),
 });
 
@@ -133,7 +133,7 @@ export function ContactForm() {
         {submitStatus === 'success' && (
           <Alert className="mb-6 bg-green-50 text-green-800 border-green-200">
             <CheckCircle2 className="h-4 w-4 text-green-600" />
-            <AlertTitle>¡Mensaje enviado con éxito!</AlertTitle>
+            <AlertTitle>¡Mensaje enviado con éxito! (success)</AlertTitle>
             <AlertDescription>
               Hemos recibido tu mensaje. Nuestro equipo de soporte se pondrá en contacto contigo pronto.
             </AlertDescription>

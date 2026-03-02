@@ -53,33 +53,31 @@ export interface TransactionError {
   status: number;
 }
 
+// createTransaction usa el RPC transfer_funds (con UUIDs de Profile) en vez de
+// INSERT directo. El INSERT directo falla por RLS y omite la lógica de saldo,
+// idempotencia y deadlock prevention que vive en la función SQL.
 export const createTransaction = async (data: TransactionRequest): Promise<TransactionResponse | TransactionError> => {
   try {
-    const { data: tx, error } = await supabase
-      .from('Transaction')
-      .insert({
-        senderId: data.senderId,
-        receiverId: data.receiverId,
-        amount: data.amount,
-        description: data.description || '',
-        type: data.type || 'TRANSFER',
-        status: 'COMPLETED',
-      })
-      .select()
-      .single();
+    const { data: result, error } = await supabase.rpc('transfer_funds', {
+      p_sender_id:       data.senderId,
+      p_receiver_id:     data.receiverId,
+      p_amount:          data.amount,
+      p_description:     data.description || '',
+      p_idempotency_key: crypto.randomUUID(),
+    });
 
     if (error) throw error;
 
     return {
-      id: tx.id,
-      senderId: tx.senderId,
-      receiverId: tx.receiverId,
-      amount: tx.amount,
-      description: tx.description || undefined,
-      status: tx.status,
-      type: tx.type,
-      createdAt: new Date(tx.createdAt),
-      updatedAt: new Date(tx.updatedAt),
+      id: result.id,
+      senderId: data.senderId,
+      receiverId: data.receiverId,
+      amount: data.amount,
+      description: data.description,
+      status: result.status === 'already_processed' ? 'COMPLETED' : 'COMPLETED',
+      type: 'TRANSFER',
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
   } catch (error: unknown) {
     console.error('Error al crear transacción:', error);

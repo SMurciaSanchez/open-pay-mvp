@@ -2,54 +2,184 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── OpenPay Design System ────────────────────────────────────
+   Fintech premium: dark sidebar, blue accent, clean white cards.
+   Primary:  #2563EB  (blue-600)
+   Surface:  #F8FAFC  (slate-50)
+   Sidebar:  #0F172A  (slate-900)
+──────────────────────────────────────────────────────────────── */
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
+    --background:         0 0% 100%;
+    --card:               0 0% 100%;
+    --popover:            0 0% 100%;
+
+    --foreground:         222 47% 11%;
+    --card-foreground:    222 47% 11%;
+    --popover-foreground: 222 47% 11%;
+
+    /* Blue-600 */
+    --primary:            225 73% 57%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary:          214 100% 97%;
+    --secondary-foreground: 225 73% 40%;
+
+    --muted:              215 28% 97%;
+    --muted-foreground:   215 16% 47%;
+
+    --accent:             210 100% 95%;
+    --accent-foreground:  225 73% 40%;
+
+    --destructive:        0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border:             214 32% 91%;
+    --input:              214 32% 91%;
+    --ring:               225 73% 57%;
+
+    /* 12 px — rounded but not childish */
+    --radius: 0.75rem;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
+    --background:         222 47% 6%;
+    --foreground:         210 40% 98%;
+    --card:               222 47% 8%;
+    --card-foreground:    210 40% 98%;
+    --popover:            222 47% 8%;
     --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
+    --primary:            217 91% 60%;
+    --primary-foreground: 222 47% 11%;
+    --secondary:          217 33% 18%;
     --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
+    --muted:              217 33% 18%;
+    --muted-foreground:   215 20% 65%;
+    --accent:             217 33% 18%;
+    --accent-foreground:  210 40% 98%;
+    --destructive:        0 63% 31%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
+    --border:             217 33% 18%;
+    --input:              217 33% 18%;
+    --ring:               217 91% 60%;
   }
 }
 
 @layer base {
-  * { @apply border-border; }
-  body { @apply bg-background text-foreground; }
+  * {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+
+  /* Inputs with blue focus */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+  textarea,
+  select {
+    @apply bg-white border border-border rounded-lg px-3 py-2 text-sm transition-all duration-200;
+    outline: none;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):focus,
+  textarea:focus,
+  select:focus {
+    border-color: hsl(var(--primary));
+    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.12);
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.15);
+    color: hsl(var(--foreground));
+  }
+}
+
+@layer components {
+
+  /* ── Shadows ─────────────────────────────────────────────── */
+  .card-shadow {
+    box-shadow:
+      0 1px 3px 0 hsl(215 28% 11% / 0.06),
+      0 1px 2px -1px hsl(215 28% 11% / 0.04);
+  }
+
+  .card-shadow-md {
+    box-shadow:
+      0 4px 6px -1px hsl(215 28% 11% / 0.07),
+      0 2px 4px -2px hsl(215 28% 11% / 0.05);
+  }
+
+  .card-shadow-lg {
+    box-shadow:
+      0 10px 15px -3px hsl(215 28% 11% / 0.08),
+      0 4px 6px -4px hsl(215 28% 11% / 0.05);
+  }
+
+  /* ── Dark sidebar helpers ────────────────────────────────── */
+  .sidebar-item {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
+           transition-all duration-150 cursor-pointer;
+  }
+
+  .sidebar-item-inactive {
+    @apply text-slate-400 hover:text-white hover:bg-slate-800;
+  }
+
+  .sidebar-item-active {
+    @apply bg-blue-600 text-white;
+    box-shadow: 0 4px 12px hsl(225 73% 57% / 0.35);
+  }
+
+  /* ── Surface helpers ─────────────────────────────────────── */
+  .surface-blue {
+    background-color: hsl(214 100% 97%);
+  }
+
+  /* ── Gradient cards ──────────────────────────────────────── */
+  .gradient-blue {
+    background: linear-gradient(135deg, #2563EB 0%, #4F46E5 100%);
+  }
+
+  .gradient-green {
+    background: linear-gradient(135deg, #059669 0%, #0891B2 100%);
+  }
+
+  /* ── Buttons ─────────────────────────────────────────────── */
+  .btn-primary {
+    @apply bg-primary text-primary-foreground font-semibold rounded-xl px-5 py-2.5 text-sm
+           transition-all duration-200 hover:brightness-110 active:scale-[0.98] shadow-sm;
+  }
+
+  .btn-ghost {
+    @apply text-primary font-medium rounded-xl px-5 py-2.5 text-sm
+           transition-all duration-200 hover:bg-primary/8 active:scale-[0.98];
+  }
+
+  /* ── Quick action button ─────────────────────────────────── */
+  .quick-action {
+    @apply flex flex-col items-center gap-2 p-4 bg-white rounded-xl border border-slate-200
+           hover:border-blue-300 hover:shadow-md transition-all duration-200 cursor-pointer
+           group;
+  }
+
+  .quick-action-icon {
+    @apply h-10 w-10 rounded-xl flex items-center justify-center
+           transition-transform duration-200 group-hover:scale-110;
+  }
+
+  /* ── Stat badge ──────────────────────────────────────────── */
+  .stat-up   { @apply text-emerald-600 bg-emerald-50 text-xs font-semibold px-2 py-0.5 rounded-full; }
+  .stat-down { @apply text-red-500 bg-red-50 text-xs font-semibold px-2 py-0.5 rounded-full; }
 }

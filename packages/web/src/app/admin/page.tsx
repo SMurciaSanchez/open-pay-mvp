@@ -30,13 +30,15 @@ import { AuditLogViewer } from '@/components/admin/AuditLogViewer';
 
 
 export default function AdminDashboard() {
-  // In a real application, you would check if the user has admin privileges
-  // and redirect if they don't
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
 
-  if (!user) {
+  // Solo redirigir si no hay sesión activa
+  if (!loading && !user) {
     redirect('/login');
   }
+  // NOTA: La verificación de rol admin se hace a nivel de RLS en Supabase.
+  // El panel es accesible para usuarios autenticados; los datos sensibles
+  // están protegidos por policies que validan app_metadata.role === 'admin'.
 
   return (
     <div className="container mx-auto py-6 space-y-6">

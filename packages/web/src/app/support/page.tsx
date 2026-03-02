@@ -98,55 +98,52 @@ export default function SupportPage() {
         </TabsContent>
         
         <TabsContent value="faq">
-          <Card className="bg-white shadow-sm">
+          <Card className="bg-white card-shadow border-border">
             <CardHeader>
               <CardTitle>Preguntas frecuentes</CardTitle>
               <CardDescription>
-                Encuentra respuestas a las preguntas más comunes sobre OpenPay
+                FAQ — Encuentra respuestas a las preguntas más comunes sobre OpenPay
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-1">
-                <h3 className="text-base font-medium">¿Cómo puedo enviar dinero?</h3>
-                <p className="text-sm text-muted-foreground">
-                  Para enviar dinero, ve a la sección "Enviar dinero" en el dashboard, ingresa el correo electrónico del destinatario, la cantidad y el concepto. Después confirma la transacción.
-                </p>
-              </div>
-              
-              <div className="space-y-1">
-                <h3 className="text-base font-medium">¿Cómo recargo fondos a mi cuenta?</h3>
-                <p className="text-sm text-muted-foreground">
-                  Puedes recargar fondos mediante transferencia bancaria SPEI, tarjeta de débito o crédito. Ve a la sección "Recargar" para ver todas las opciones disponibles.
-                </p>
-              </div>
-              
-              <div className="space-y-1">
-                <h3 className="text-base font-medium">¿Cómo cambio mi contraseña?</h3>
-                <p className="text-sm text-muted-foreground">
-                  Para cambiar tu contraseña, ve al menú de &quot;Configuración&quot; &gt; &quot;Seguridad&quot; y selecciona la opción &quot;Cambiar contraseña&quot;.
-                </p>
-              </div>
-              
-              <div className="space-y-1">
-                <h3 className="text-base font-medium">¿Qué hago si olvidé mi contraseña?</h3>
-                <p className="text-sm text-muted-foreground">
-                  En la pantalla de inicio de sesión, selecciona la opción "¿Olvidaste tu contraseña?". Recibirás un correo con instrucciones para restablecerla.
-                </p>
-              </div>
-              
-              <div className="space-y-1">
-                <h3 className="text-base font-medium">¿Cómo verifico mi identidad?</h3>
-                <p className="text-sm text-muted-foreground">
-                  Para verificar tu identidad, ve a &quot;Configuración&quot; &gt; &quot;Verificación&quot; y sigue las instrucciones para subir una identificación oficial y completar el proceso.
-                </p>
-              </div>
-              
-              <div className="space-y-1">
-                <h3 className="text-base font-medium">¿Es segura mi información?</h3>
-                <p className="text-sm text-muted-foreground">
-                  OpenPay utiliza encriptación de datos y medidas de seguridad de nivel bancario para proteger tu información personal y financiera. Nunca compartimos tus datos con terceros sin tu consentimiento.
-                </p>
-              </div>
+            <CardContent>
+              <ul className="space-y-6 faq-list">
+                <li className="space-y-1">
+                  <h3 className="text-base font-medium">¿Cómo puedo enviar dinero?</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Para enviar dinero, ve a la sección "Enviar dinero" en el dashboard, ingresa el correo electrónico del destinatario, la cantidad y el concepto. Después confirma la transacción.
+                  </p>
+                </li>
+                <li className="space-y-1">
+                  <h3 className="text-base font-medium">¿Cómo recargo fondos a mi cuenta?</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Puedes recargar fondos mediante transferencia bancaria SPEI, tarjeta de débito o crédito. Ve a la sección "Recargar" para ver todas las opciones disponibles.
+                  </p>
+                </li>
+                <li className="space-y-1">
+                  <h3 className="text-base font-medium">¿Cómo cambio mi contraseña?</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Para cambiar tu contraseña, ve al menú de &quot;Configuración&quot; &gt; &quot;Seguridad&quot; y selecciona la opción &quot;Cambiar contraseña&quot;.
+                  </p>
+                </li>
+                <li className="space-y-1">
+                  <h3 className="text-base font-medium">¿Qué hago si olvidé mi contraseña?</h3>
+                  <p className="text-sm text-muted-foreground">
+                    En la pantalla de inicio de sesión, selecciona la opción "¿Olvidaste tu contraseña?". Recibirás un correo con instrucciones para restablecerla.
+                  </p>
+                </li>
+                <li className="space-y-1">
+                  <h3 className="text-base font-medium">¿Cómo verifico mi identidad?</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Para verificar tu identidad, ve a &quot;Configuración&quot; &gt; &quot;Verificación&quot; y sigue las instrucciones para subir una identificación oficial y completar el proceso.
+                  </p>
+                </li>
+                <li className="space-y-1">
+                  <h3 className="text-base font-medium">¿Es segura mi información?</h3>
+                  <p className="text-sm text-muted-foreground">
+                    OpenPay utiliza encriptación de datos y medidas de seguridad de nivel bancario para proteger tu información personal y financiera. Nunca compartimos tus datos con terceros sin tu consentimiento.
+                  </p>
+                </li>
+              </ul>
             </CardContent>
           </Card>
         </TabsContent>
@@ -162,6 +159,11 @@ export default function SupportPage() {
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
+                  <li>
+                    <Link href="#" className="text-primary hover:underline">
+                      Documentation
+                    </Link>
+                  </li>
                   <li>
                     <Link href="#" className="text-primary hover:underline">
                       Cómo comenzar con OpenPay

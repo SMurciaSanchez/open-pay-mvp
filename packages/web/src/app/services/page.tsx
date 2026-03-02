@@ -12,11 +12,16 @@ export default function ServicesPage() {
   const [activeTab, setActiveTab] = useState('payment');
 
   return (
-    <div className="container max-w-4xl mx-auto py-12 px-4">
-      <h1 className="text-3xl font-bold mb-2">Pago de Servicios</h1>
-      <p className="text-muted-foreground mb-8">
-        Paga tus servicios de manera rápida y segura.
-      </p>
+    <div className="px-5 py-6 lg:px-8 lg:py-8 max-w-4xl mx-auto">
+      <div className="flex items-center gap-3 mb-8">
+        <div className="h-10 w-10 rounded-xl bg-violet-100 flex items-center justify-center">
+          <span className="text-violet-600 text-lg">⚡</span>
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Pago de Servicios</h1>
+          <p className="text-slate-500 text-sm">Paga tus servicios de manera rápida y segura.</p>
+        </div>
+      </div>
 
       <Tabs defaultValue="payment" onValueChange={setActiveTab}>
         <TabsList className="grid grid-cols-2 w-full md:w-[400px] mb-8">
