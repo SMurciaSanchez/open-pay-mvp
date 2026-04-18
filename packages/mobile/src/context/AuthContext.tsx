@@ -1,10 +1,20 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { AuthService, SessionState } from '../services/AuthService';
+import { Session } from '@supabase/supabase-js';
+import { supabase } from '../lib/supabase';
+import { AuthService } from '../services/AuthService';
+
+interface UserInfo {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+}
 
 interface AuthContextType {
   isLoading: boolean;
   isSignedIn: boolean;
-  user: SessionState['user'] | null;
+  user: UserInfo | null;
+  session: Session | null;
   signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signOut: () => Promise<void>;
   signUp: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
@@ -15,169 +25,87 @@ interface AuthContextType {
   disableBiometric: () => Promise<boolean>;
 }
 
-// Crear el contexto con un valor inicial
 const AuthContext = createContext<AuthContextType | null>(null);
 
-// Hook personalizado para usar el contexto de autenticación
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth debe ser usado dentro de un AuthProvider');
-  }
+  if (!context) throw new Error('useAuth debe ser usado dentro de un AuthProvider');
   return context;
 };
 
-// Componente proveedor de autenticación
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [isSignedIn, setIsSignedIn] = useState(false);
-  const [user, setUser] = useState<SessionState['user'] | null>(null);
-  
-  // Obtener la instancia del servicio de autenticación
+  const [session, setSession] = useState<Session | null>(null);
   const authService = AuthService.getInstance();
 
-  // Efecto para cargar la sesión al iniciar la aplicación
   useEffect(() => {
-    const loadSession = async () => {
-      try {
-        setIsLoading(true);
-        
-        // Intentar restaurar la sesión desde el almacenamiento local
-        const sessionRestored = await authService.restoreSession();
-        
-        if (sessionRestored) {
-          const sessionState = authService.getSessionState();
-          setIsSignedIn(true);
-          setUser(sessionState.user || null);
-        }
-      } catch (error) {
-        console.error('Error al cargar la sesión:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    // Cargar sesión inicial
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setIsLoading(false);
+    });
 
-    loadSession();
+    // Escuchar cambios de sesión en tiempo real
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      setIsLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  // Iniciar sesión con correo y contraseña
+  const userInfo: UserInfo | null = session?.user
+    ? {
+        id: session.user.id,
+        name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'Usuario',
+        email: session.user.email || '',
+        avatar: session.user.user_metadata?.avatar_url,
+      }
+    : null;
+
   const signIn = async (email: string, password: string) => {
     setIsLoading(true);
-    
-    try {
-      const result = await authService.login({ email, password });
-      
-      if (result.success) {
-        setIsSignedIn(true);
-        setUser(authService.getSessionState().user || null);
-      }
-      
-      return result;
-    } catch (error: any) {
-      console.error('Error en inicio de sesión:', error);
-      return { 
-        success: false, 
-        error: error.message || 'Error al iniciar sesión' 
-      };
-    } finally {
-      setIsLoading(false);
-    }
+    const result = await authService.login({ email, password });
+    setIsLoading(false);
+    return result;
   };
 
-  // Iniciar sesión con biometría
-  const signInWithBiometrics = async () => {
-    setIsLoading(true);
-    
-    try {
-      const result = await authService.loginWithBiometric();
-      
-      if (result.success) {
-        setIsSignedIn(true);
-        setUser(authService.getSessionState().user || null);
-      }
-      
-      return result;
-    } catch (error: any) {
-      console.error('Error en inicio de sesión con biometría:', error);
-      return { 
-        success: false, 
-        error: error.message || 'Error al iniciar sesión con biometría' 
-      };
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Registrar un nuevo usuario
   const signUp = async (name: string, email: string, password: string) => {
     setIsLoading(true);
-    
-    try {
-      return await authService.register({ name, email, password });
-    } catch (error: any) {
-      console.error('Error en registro:', error);
-      return { 
-        success: false, 
-        error: error.message || 'Error al registrar usuario' 
-      };
-    } finally {
-      setIsLoading(false);
-    }
+    const result = await authService.register({ name, email, password });
+    setIsLoading(false);
+    return result;
   };
 
-  // Cerrar sesión
   const signOut = async () => {
     setIsLoading(true);
-    
-    try {
-      await authService.logout();
-      setIsSignedIn(false);
-      setUser(null);
-    } catch (error) {
-      console.error('Error al cerrar sesión:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    await authService.logout();
+    setIsLoading(false);
   };
 
-  // Verificar si la biometría está disponible
-  const isBiometricAvailable = async () => {
-    return await authService.isBiometricAvailable();
-  };
-
-  // Verificar si la biometría está habilitada
-  const isBiometricEnabled = async () => {
-    return await authService.isBiometricEnabled();
-  };
-
-  // Habilitar la biometría
-  const enableBiometric = async () => {
-    return await authService.enableBiometric();
-  };
-
-  // Deshabilitar la biometría
-  const disableBiometric = async () => {
-    return await authService.disableBiometric();
-  };
-
-  // Valores y funciones que expone el contexto
-  const value: AuthContextType = {
-    isLoading,
-    isSignedIn,
-    user,
-    signIn,
-    signOut,
-    signUp,
-    signInWithBiometrics,
-    isBiometricAvailable,
-    isBiometricEnabled,
-    enableBiometric,
-    disableBiometric,
+  const signInWithBiometrics = async () => {
+    setIsLoading(true);
+    const result = await authService.loginWithBiometric();
+    setIsLoading(false);
+    return result;
   };
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={{
+      isLoading,
+      isSignedIn: !!session,
+      user: userInfo,
+      session,
+      signIn,
+      signOut,
+      signUp,
+      signInWithBiometrics,
+      isBiometricAvailable: () => authService.isBiometricAvailable(),
+      isBiometricEnabled: () => authService.isBiometricEnabled(),
+      enableBiometric: () => authService.enableBiometric(),
+      disableBiometric: () => authService.disableBiometric(),
+    }}>
       {children}
     </AuthContext.Provider>
   );
-}; 
+};

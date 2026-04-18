@@ -3,13 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useAuth } from '../context/AuthContext';
 import { ActivityIndicator, View } from 'react-native';
-import { 
-  Home, 
-  CreditCard, 
-  Send, 
-  FileCog, 
-  User
-} from 'lucide-react-native';
+import { Feather as Icon } from '@expo/vector-icons';
 
 // Importación de pantallas (se implementarán después)
 // Auth screens
@@ -87,7 +81,7 @@ const MainNavigator = () => {
         options={{
           title: 'Inicio',
           tabBarIcon: ({ color, size }) => (
-            <Home size={size} color={color} />
+            <Icon name="home" size={size} color={color} />
           ),
         }}
       />
@@ -97,7 +91,7 @@ const MainNavigator = () => {
         options={{
           title: 'Transacciones',
           tabBarIcon: ({ color, size }) => (
-            <CreditCard size={size} color={color} />
+            <Icon name="credit-card" size={size} color={color} />
           ),
         }}
       />
@@ -107,7 +101,7 @@ const MainNavigator = () => {
         options={{
           title: 'Enviar',
           tabBarIcon: ({ color, size }) => (
-            <Send size={size} color={color} />
+            <Icon name="send" size={size} color={color} />
           ),
         }}
       />
@@ -117,7 +111,7 @@ const MainNavigator = () => {
         options={{
           title: 'Servicios',
           tabBarIcon: ({ color, size }) => (
-            <FileCog size={size} color={color} />
+            <Icon name="grid" size={size} color={color} />
           ),
         }}
       />
@@ -127,7 +121,7 @@ const MainNavigator = () => {
         options={{
           title: 'Perfil',
           tabBarIcon: ({ color, size }) => (
-            <User size={size} color={color} />
+            <Icon name="user" size={size} color={color} />
           ),
         }}
       />

@@ -1,4 +1,4 @@
-import { MD3LightTheme as DefaultTheme, configureFonts } from 'react-native-paper';
+import { MD3LightTheme as DefaultTheme } from 'react-native-paper';
 import type { MD3Theme } from 'react-native-paper';
 
 // Definición de los colores principales
@@ -21,29 +21,6 @@ const colors = {
   disabled: '#9CA3AF',
 };
 
-// Configuración de las tipografías
-const fontConfig = {
-  brandRegular: {
-    fontFamily: 'System',
-    fontWeight: '400' as const,
-  },
-  brandMedium: {
-    fontFamily: 'System',
-    fontWeight: '500' as const,
-  },
-  brandBold: {
-    fontFamily: 'System',
-    fontWeight: '700' as const,
-  },
-};
-
-// Configuración personalizada de las fuentes para diferentes componentes
-const fonts = configureFonts({
-  config: {
-    default: fontConfig,
-  },
-});
-
 // Extensión del tema por defecto de Material Design 3
 export const theme: MD3Theme = {
   ...DefaultTheme,
@@ -61,7 +38,6 @@ export const theme: MD3Theme = {
     onSurface: colors.text,
     outline: colors.border,
   },
-  fonts,
   // Personalizar bordes redondeados
   roundness: 8,
 };
