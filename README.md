@@ -1,182 +1,165 @@
-# OpenPay - Secure Financial Platform
+# OpenPay — Plataforma Financiera Digital
 
-OpenPay is a modern fintech platform designed to provide secure, reliable and user-friendly financial services. This monorepo contains both the frontend and backend components of the OpenPay MVP.
+> Fintech MVP con web moderna, app móvil y backend serverless en Supabase.  
+> Proyecto académico — Ingeniería de Sistemas, 5° semestre.
 
-## 🚀 Project Structure
+**Demo en vivo:** [web-kohl-sigma-30.vercel.app](https://web-kohl-sigma-30.vercel.app)
+
+---
+
+## Stack tecnológico
+
+| Capa | Tecnología |
+|---|---|
+| **Frontend Web** | Next.js 15 · TypeScript · Tailwind CSS · Framer Motion |
+| **App Móvil** | React Native · Expo SDK 51 |
+| **Backend / Auth** | Supabase (PostgreSQL + Auth + Storage + RLS) |
+| **UI Components** | Radix UI · shadcn/ui · Lucide React |
+| **Deploy Web** | Vercel |
+| **Animaciones** | Framer Motion · tailwindcss-animate |
+| **Formularios** | react-hook-form · Zod |
+| **Gráficos** | Recharts |
+
+---
+
+## Estructura del monorepo
 
 ```
-/
+open-pay-mvp/
 ├── packages/
-│   ├── api/                # Backend - Flask API
-│   │   ├── src/            # Source code
-│   │   │   ├── auth/       # Authentication module
-│   │   │   ├── users/      # User management module
-│   │   │   ├── transactions/ # Transactions module
-│   │   │   ├── payments/   # Payments module
-│   │   │   └── app.py      # Main application
-│   │   ├── tests/          # Unit and integration tests
-│   │   ├── .env.example    # Environment variables template
-│   │   └── requirements.txt # Python dependencies
-│   │
-│   ├── web/                # Frontend - Next.js
-│   │   ├── src/            # Source code
-│   │   │   ├── app/        # Next.js App Router
-│   │   │   ├── components/ # Reusable UI components
-│   │   │   └── lib/        # Utilities and helpers
-│   │   ├── public/         # Static assets
-│   │   └── package.json    # Node.js dependencies
-│   │
-│   └── shared/             # Shared code and types
-│       └── types/          # TypeScript interfaces
-│
-└── README.md               # Project documentation
+│   ├── web/          # Frontend Next.js 15 — PRINCIPAL
+│   ├── mobile/       # App React Native + Expo
+│   └── api/          # Placeholder Flask (no activo — backend es Supabase)
+├── app/              # Documentación y planes anteriores
+├── README.md
+└── improvement-plan.md
 ```
 
-## 🛠️ Prerequisites
+---
 
-- Node.js 18.x or later
-- Python 3.9 or later
-- PostgreSQL 14.x (production) or SQLite (development)
-- Redis (optional, for token management and caching)
+## Estado actual del proyecto
 
-## 🚀 Getting Started
+### Web (`packages/web`) — ~90% completo ✅
 
-### Clone the repository
+Desplegado en Vercel. Autenticación real con Supabase.
 
-```bash
-git clone https://github.com/your-org/openpay.git
-cd openpay
-```
+| Módulo | Estado |
+|---|---|
+| Login / Registro | ✅ Funcional con Supabase Auth |
+| Dashboard (balance real) | ✅ Conectado a Supabase |
+| Enviar dinero | ✅ RPC `transfer_funds` |
+| Historial de transacciones | ✅ Datos reales |
+| Pagos de servicios | ✅ Implementado |
+| Transferencias | ✅ Implementado |
+| Configuración de perfil | ✅ Implementado |
+| Seguridad (2FA, biometría, sesiones) | ✅ Implementado |
+| Soporte (chatbot + tickets) | ✅ Implementado |
+| Verificación de identidad (KYC) | ✅ Implementado |
+| Panel de administrador | ✅ Implementado |
+| Design System `/design` | ✅ Página interactiva |
 
-### Backend Setup
+### Mobile (`packages/mobile`) — ~50% completo 🔄
 
-1. Create a virtual environment and activate it:
+App funcional con navegación completa. Datos conectados a Supabase real.
 
-```bash
-cd packages/api
-python -m venv venv
-# On Windows
-venv\Scripts\activate
-# On macOS/Linux
-source venv/bin/activate
-```
+| Módulo | Estado |
+|---|---|
+| Login / Registro / Forgot Password | ✅ Funcional con Supabase Auth |
+| Dashboard (balance real) | ✅ Conectado a Supabase |
+| Historial de transacciones | ✅ Datos reales |
+| Enviar dinero | ✅ RPC `transfer_funds` |
+| Servicios | 🔄 UI lista, sin integración real |
+| Perfil | 🔄 UI lista, sin integración real |
+| Biometría | ✅ expo-local-authentication |
+| Notificaciones push | ❌ Pendiente |
 
-2. Install dependencies:
+---
 
-```bash
-pip install -r requirements.txt
-```
+## Inicio rápido
 
-3. Set up environment variables:
-
-```bash
-cp .env.example .env.local
-# Edit .env.local with your configuration
-```
-
-4. Initialize the database:
-
-```bash
-flask db init
-flask db migrate -m "Initial migration"
-flask db upgrade
-```
-
-5. Run the development server:
-
-```bash
-flask run
-```
-
-The API will be available at http://localhost:5000.
-
-### Frontend Setup
-
-1. Install dependencies:
+### Web
 
 ```bash
 cd packages/web
 npm install
-```
-
-2. Run the development server:
-
-```bash
+# Crea packages/web/.env.local con las variables de Supabase
 npm run dev
+# → http://localhost:3000
 ```
 
-The web app will be available at http://localhost:3000.
+Variables de entorno requeridas en `.env.local`:
+```
+NEXT_PUBLIC_SUPABASE_URL=https://bmfiotbutuslsaxeumik.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
+```
 
-## 🧪 Testing
-
-### Backend Tests
+### Mobile
 
 ```bash
-cd packages/api
-pytest
+cd packages/mobile
+npm install
+# Asegúrate de tener packages/mobile/.env con las variables de Supabase
+npx expo start
+# Escanea el QR con Expo Go en tu celular
 ```
 
-For test coverage:
-
-```bash
-pytest --cov=src
+Variables de entorno en `packages/mobile/.env`:
+```
+EXPO_PUBLIC_SUPABASE_URL=https://bmfiotbutuslsaxeumik.supabase.co
+EXPO_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
 ```
 
-### Frontend Tests
+---
 
-```bash
-cd packages/web
-npm test
+## Arquitectura del backend
+
+El backend **real** es Supabase — no hay servidor Flask activo.
+
+```
+Cliente (Next.js / React Native)
+         │
+         ▼
+   Supabase Client SDK
+         │
+    ┌────┴─────────────────────────────────────┐
+    │           Supabase Platform               │
+    │  ┌─────────┐  ┌────────┐  ┌───────────┐  │
+    │  │  Auth   │  │  DB    │  │  Storage  │  │
+    │  │  (JWT)  │  │  (PG)  │  │  (KYC)    │  │
+    │  └─────────┘  └────────┘  └───────────┘  │
+    │                 │                         │
+    │          ┌──────┴──────┐                  │
+    │          │ PostgreSQL  │                  │
+    │          │ Functions   │                  │
+    │          │ + RLS       │                  │
+    │          └─────────────┘                  │
+    └───────────────────────────────────────────┘
 ```
 
-## 🚢 Deployment
-
-### Backend
-
-1. Set up production environment variables in `.env.production`
-2. Build and run with gunicorn:
-
-```bash
-gunicorn 'src.app:create_app()'
+**Función principal:**
+```sql
+transfer_funds(sender_id, receiver_id, amount, description, idempotency_key)
+-- Valida saldo, aplica RLS, previene deadlocks, es idempotente
 ```
 
-### Frontend
+---
 
-1. Build the application:
+## Documentación
 
-```bash
-cd packages/web
-npm run build
-```
+| Documento | Ubicación | Descripción |
+|---|---|---|
+| **Frontend** | `packages/web/FRONTEND.md` | Guía completa del frontend web |
+| **Design System** | `packages/web/DESIGN_SYSTEM.md` | Colores, tipografía, animaciones, componentes |
+| **Design visual** | `/design` (en la app) | Página interactiva del design system |
+| **Supabase config** | `packages/web/SUPABASE_CONFIG.md` | Configuración de la base de datos |
+| **Scripts SQL** | `packages/web/SCRIPTS_SQL_OPENPAY.md` | Scripts de creación de tablas y funciones |
+| **Deploy Vercel** | `packages/web/VERCEL_DEPLOYMENT.md` | Instrucciones de deployment |
+| **Mobile impl.** | `packages/mobile/IMPLEMENTACION.md` | Plan de implementación de la app móvil |
 
-2. Start the production server:
+---
 
-```bash
-npm start
-```
+## Equipo
 
-Alternatively, deploy to Vercel:
-
-```bash
-vercel deploy
-```
-
-## 📝 Contributing
-
-Please read our [Contributing Guidelines](CONTRIBUTING.md) before submitting pull requests.
-
-## 🔒 Security
-
-- All authentication uses JWT tokens with proper expiration and rotation
-- Passwords are securely hashed using industry standards
-- HTTPS is required for all communication
-- Rate limiting is applied to sensitive endpoints
-- See our full [Security Policy](SECURITY.md) for more details
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 📞 Support
-
-For support, email support@openpay.com or open an issue in the repository. 
+Proyecto desarrollado por **Sebastián Murcia** y **Sebastián Díaz**  
+Ingeniería de Sistemas — Gerencia de Proyectos TICs  
+© 2025 OpenPay · Todos los derechos reservados
