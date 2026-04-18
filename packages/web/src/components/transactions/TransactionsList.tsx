@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowUpRight, ArrowDownLeft, Wallet, CreditCard, AlertCircle } from 'lucide-react';
@@ -97,97 +95,105 @@ export function TransactionsList({ limit, showViewAll = true }: TransactionsList
   };
 
   return (
-    <Card className="card-shadow border-slate-200 rounded-2xl bg-white">
-      <CardHeader>
-        <CardTitle>Transacciones</CardTitle>
-        <CardDescription>
-          Recent transactions · Transactions list
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+    <div className="rounded-2xl bg-white border border-violet-100 overflow-hidden"
+      style={{ boxShadow: '0 4px 20px rgba(124,58,237,0.08)' }}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: '1px solid rgba(124,58,237,0.08)' }}>
+        <div className="flex items-center gap-3">
+          <div className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0"
+            style={{ background: 'linear-gradient(135deg, #8b5cf6, #6366f1)', boxShadow: '0 4px 12px rgba(124,58,237,0.3)' }}
+          >
+            <ArrowUpRight className="h-4 w-4 text-white" />
+          </div>
+          <div>
+            <h3 className="font-bold text-slate-900 text-base leading-none">Movimientos</h3>
+            <p className="text-xs text-slate-400 mt-0.5">Historial de transacciones</p>
+          </div>
+        </div>
+        {showViewAll && transactions.length > 0 && (
+          <button
+            onClick={() => router.push('/transactions')}
+            className="text-xs font-semibold text-violet-600 hover:text-violet-700 transition-colors"
+          >
+            Ver todas →
+          </button>
+        )}
+      </div>
+
+      <div className="px-4 py-3">
         {loading ? (
-          <div className="space-y-4">
-            <p className="text-xs text-muted-foreground">Cargando transacciones...</p>
+          <div className="space-y-3 py-2">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-4 p-2">
-                <Skeleton className="h-10 w-10 rounded-full" />
+              <div key={i} className="flex items-center gap-3 px-2 py-1">
+                <Skeleton className="h-10 w-10 rounded-xl shrink-0" />
                 <div className="space-y-2 flex-1">
-                  <Skeleton className="h-4 w-3/4" />
-                  <Skeleton className="h-3 w-1/2" />
+                  <Skeleton className="h-3.5 w-3/4 rounded-lg" />
+                  <Skeleton className="h-3 w-1/2 rounded-lg" />
                 </div>
-                <Skeleton className="h-5 w-20" />
+                <Skeleton className="h-4 w-16 rounded-lg" />
               </div>
             ))}
           </div>
         ) : error ? (
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <AlertCircle className="h-12 w-12 text-muted-foreground" />
-            <h3 className="mt-4 text-lg font-semibold">No se pudieron cargar las transacciones</h3>
-            <p className="text-sm text-muted-foreground">
-              Intenta recargar la página o inténtalo más tarde
-            </p>
-            <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
-              Reintentar
-            </Button>
+          <div className="flex flex-col items-center justify-center py-10 text-center gap-3">
+            <div className="h-12 w-12 rounded-2xl bg-red-50 flex items-center justify-center">
+              <AlertCircle className="h-6 w-6 text-red-400" />
+            </div>
+            <div>
+              <p className="font-semibold text-slate-700 text-sm">No se pudieron cargar</p>
+              <p className="text-xs text-slate-400 mt-0.5">Intenta recargar la página</p>
+            </div>
+            <button
+              onClick={() => window.location.reload()}
+              className="text-xs font-semibold text-violet-600 hover:text-violet-700 transition-colors"
+            >
+              Reintentar →
+            </button>
           </div>
         ) : transactions.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <CreditCard className="h-12 w-12 text-muted-foreground" />
-            <h3 className="mt-4 text-lg font-semibold">No hay transacciones</h3>
-            <p className="text-sm text-muted-foreground">
-              Realiza tu primera transacción para verla aquí
-            </p>
+          <div className="flex flex-col items-center justify-center py-10 text-center gap-3">
+            <div className="h-12 w-12 rounded-2xl bg-violet-50 flex items-center justify-center">
+              <CreditCard className="h-6 w-6 text-violet-400" />
+            </div>
+            <div>
+              <p className="font-semibold text-slate-700 text-sm">Sin transacciones</p>
+              <p className="text-xs text-slate-400 mt-0.5">Realiza tu primera transferencia</p>
+            </div>
           </div>
         ) : (
-          <div className="space-y-1">
-            {transactions.map((transaction) => (
-              <div 
-                key={transaction.id} 
-                className="flex items-center justify-between p-3 hover:bg-secondary rounded-lg cursor-pointer transition-colors"
-                onClick={() => handleViewTransaction(transaction.id)}
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`rounded-full p-2 ${
-                    transaction.type === 'receive' || transaction.type === 'topup' 
-                      ? 'bg-green-100' 
-                      : 'bg-red-100'
-                  }`}>
-                    {getTransactionIcon(transaction.type)}
-                  </div>
-                  <div>
-                    <p className="font-medium text-sm">{getTransactionTitle(transaction)}</p>
-                    <div className="flex items-center gap-2">
-                      <p className="text-xs text-muted-foreground">{formatDate(transaction.date)}</p>
-                      {transaction.status !== 'completed' && 
-                        getStatusBadge(transaction.status)
-                      }
+          <div className="space-y-0.5">
+            {transactions.map((transaction) => {
+              const isPositive = transaction.type === 'receive' || transaction.type === 'topup';
+              return (
+                <div
+                  key={transaction.id}
+                  className="flex items-center justify-between px-3 py-3 rounded-xl cursor-pointer transition-all duration-150 hover:bg-violet-50/60 group"
+                  onClick={() => handleViewTransaction(transaction.id)}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-150 group-hover:scale-105 ${
+                      isPositive ? 'bg-emerald-100' : 'bg-rose-100'
+                    }`}>
+                      {getTransactionIcon(transaction.type)}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-sm text-slate-800 leading-none">{getTransactionTitle(transaction)}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <p className="text-xs text-slate-400">{formatDate(transaction.date)}</p>
+                        {transaction.status !== 'completed' && getStatusBadge(transaction.status)}
+                      </div>
                     </div>
                   </div>
+                  <p className={`font-bold text-sm tabular-nums ${isPositive ? 'text-emerald-600' : 'text-rose-500'}`}>
+                    {isPositive ? '+' : '-'}{formatCurrency(transaction.amount)}
+                  </p>
                 </div>
-                <p className={`font-medium ${
-                  transaction.type === 'receive' || transaction.type === 'topup'
-                    ? 'text-green-600'
-                    : 'text-red-600'
-                }`}>
-                  {transaction.type === 'receive' || transaction.type === 'topup' ? '+' : '-'}
-                  {formatCurrency(transaction.amount)}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
-      </CardContent>
-      {showViewAll && transactions.length > 0 && (
-        <CardFooter>
-          <Button 
-            variant="outline" 
-            className="w-full"
-            onClick={() => router.push('/transactions')}
-          >
-            Ver todas las transacciones
-          </Button>
-        </CardFooter>
-      )}
-    </Card>
+      </div>
+    </div>
   );
 } 

@@ -1,11 +1,6 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/lib/supabase';
 import { formatCurrency } from '@/lib/utils';
@@ -122,89 +117,142 @@ export function SendMoneyForm({ onSuccess }: SendMoneyFormProps) {
 
   if (submitted) {
     return (
-      <Card className="card-shadow border-slate-200 rounded-2xl bg-white">
-        <CardContent className="flex flex-col items-center justify-center py-10 gap-3">
-          <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
-            <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <p className="font-semibold text-lg">Transferencia enviada</p>
-          <p className="text-sm text-muted-foreground">{formatCurrency(formData.amount)} a {formData.recipient}</p>
-          <Button variant="outline" onClick={() => {
+      <div className="rounded-2xl bg-white border border-violet-100 p-8 flex flex-col items-center justify-center gap-4 text-center"
+        style={{ boxShadow: '0 4px 20px rgba(124,58,237,0.08)' }}
+      >
+        <div className="h-14 w-14 rounded-full flex items-center justify-center"
+          style={{ background: 'linear-gradient(135deg, #059669, #0891b2)', boxShadow: '0 8px 20px rgba(5,150,105,0.3)' }}
+        >
+          <svg className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <div>
+          <p className="font-bold text-lg text-slate-900">¡Transferencia enviada!</p>
+          <p className="text-sm text-slate-500 mt-0.5">{formatCurrency(formData.amount)} → {formData.recipient}</p>
+        </div>
+        <button
+          onClick={() => {
             setSubmitted(false);
             setFormData({ amount: 0, recipient: '', concept: '' });
             idempotencyKey.current = generateIdempotencyKey();
-          }}>
-            Nueva transferencia
-          </Button>
-        </CardContent>
-      </Card>
+          }}
+          className="mt-1 text-sm font-semibold text-violet-600 hover:text-violet-700 transition-colors"
+        >
+          Nueva transferencia →
+        </button>
+      </div>
     );
   }
 
   return (
-    <Card className="card-shadow border-slate-200 rounded-2xl bg-white">
-      <CardHeader>
-        <CardTitle>Enviar dinero</CardTitle>
-        <CardDescription>
-          Envía dinero a otros usuarios de OpenPay
-          <span className="block text-xs mt-1">* Campos obligatorios — Validation error si se dejan vacíos</span>
-        </CardDescription>
-      </CardHeader>
-      <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="amount">Cantidad *</Label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
-              <Input
-                id="amount" name="amount" type="number" min="0.01" step="0.01"
-                placeholder="0.00" value={formData.amount || ''}
-                onChange={handleChange} disabled={isLoading}
-                className={`pl-8 ${errors.amount ? 'border-red-500' : ''}`}
-              />
-            </div>
-            {errors.amount && <p className="text-xs text-red-500">{errors.amount}</p>}
+    <div className="rounded-2xl bg-white border border-violet-100 overflow-hidden"
+      style={{ boxShadow: '0 4px 20px rgba(124,58,237,0.08)' }}
+    >
+      {/* Header */}
+      <div className="px-6 pt-6 pb-5" style={{ borderBottom: '1px solid rgba(124,58,237,0.08)' }}>
+        <div className="flex items-center gap-3">
+          <div className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0"
+            style={{ background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)', boxShadow: '0 4px 12px rgba(124,58,237,0.35)' }}
+          >
+            <svg className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
           </div>
+          <div>
+            <h3 className="font-bold text-slate-900 text-base leading-none">Enviar dinero</h3>
+            <p className="text-xs text-slate-400 mt-0.5">Transferencia instantánea y segura</p>
+          </div>
+        </div>
+      </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="recipient">Destinatario *</Label>
-            <Input
-              id="recipient" name="recipient" type="email"
-              placeholder="usuario@ejemplo.com" value={formData.recipient}
+      <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+        {/* Amount */}
+        <div className="space-y-1.5">
+          <label htmlFor="amount" className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
+            Monto a enviar
+          </label>
+          <div className="relative">
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-violet-400 font-semibold text-sm">$</span>
+            <input
+              id="amount" name="amount" type="number" min="0.01" step="0.01"
+              placeholder="0.00" value={formData.amount || ''}
               onChange={handleChange} disabled={isLoading}
-              className={errors.recipient ? 'border-red-500' : ''}
+              className={`w-full h-11 pl-8 pr-3 rounded-xl text-sm font-medium transition-all duration-200 outline-none
+                ${errors.amount
+                  ? 'border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200'
+                  : 'border border-violet-200 bg-violet-50/50 focus:border-violet-400 focus:ring-2 focus:ring-violet-100'
+                }`}
             />
-            {errors.recipient && <p className="text-xs text-red-500">{errors.recipient}</p>}
           </div>
+          {errors.amount && <p className="text-xs text-red-500 flex items-center gap-1"><span>⚠</span>{errors.amount}</p>}
+        </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="concept">Concepto</Label>
-            <Textarea
-              id="concept" name="concept" rows={3}
-              placeholder="Motivo de la transferencia"
-              value={formData.concept} onChange={handleChange}
-              disabled={isLoading}
-              className={errors.concept ? 'border-red-500' : ''}
-            />
-            {errors.concept && <p className="text-xs text-red-500">{errors.concept}</p>}
-          </div>
-        </CardContent>
-        <CardFooter>
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? (
-              <span className="flex items-center gap-2">
-                <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
-                Procesando...
-              </span>
-            ) : 'Enviar dinero'}
-          </Button>
-        </CardFooter>
+        {/* Recipient */}
+        <div className="space-y-1.5">
+          <label htmlFor="recipient" className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
+            Correo del destinatario
+          </label>
+          <input
+            id="recipient" name="recipient" type="email"
+            placeholder="usuario@ejemplo.com" value={formData.recipient}
+            onChange={handleChange} disabled={isLoading}
+            className={`w-full h-11 px-3.5 rounded-xl text-sm transition-all duration-200 outline-none
+              ${errors.recipient
+                ? 'border border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200'
+                : 'border border-violet-200 bg-violet-50/50 focus:border-violet-400 focus:ring-2 focus:ring-violet-100'
+              }`}
+          />
+          {errors.recipient && <p className="text-xs text-red-500 flex items-center gap-1"><span>⚠</span>{errors.recipient}</p>}
+        </div>
+
+        {/* Concept */}
+        <div className="space-y-1.5">
+          <label htmlFor="concept" className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
+            Concepto
+          </label>
+          <textarea
+            id="concept" name="concept" rows={2}
+            placeholder="Motivo de la transferencia"
+            value={formData.concept} onChange={handleChange}
+            disabled={isLoading}
+            className={`w-full px-3.5 py-2.5 rounded-xl text-sm resize-none transition-all duration-200 outline-none
+              ${errors.concept
+                ? 'border border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200'
+                : 'border border-violet-200 bg-violet-50/50 focus:border-violet-400 focus:ring-2 focus:ring-violet-100'
+              }`}
+          />
+          {errors.concept && <p className="text-xs text-red-500 flex items-center gap-1"><span>⚠</span>{errors.concept}</p>}
+        </div>
+
+        {/* Submit */}
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="w-full h-11 rounded-xl text-white font-semibold text-sm transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed hover:-translate-y-0.5 active:scale-[0.98] flex items-center justify-center gap-2 mt-2"
+          style={{
+            background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+            boxShadow: '0 6px 20px rgba(124,58,237,0.4)',
+          }}
+        >
+          {isLoading ? (
+            <>
+              <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              Procesando...
+            </>
+          ) : (
+            <>
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              </svg>
+              Enviar dinero
+            </>
+          )}
+        </button>
       </form>
-    </Card>
+    </div>
   );
 }

@@ -2,8 +2,8 @@ import './globals.css';
 import { Inter, Poppins, JetBrains_Mono } from 'next/font/google';
 import { ReactNode } from 'react';
 import { Toaster } from '@/components/ui/toaster';
+import type { Metadata, Viewport } from 'next';
 
-// Font configuration
 const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
@@ -23,28 +23,26 @@ const jetbrainsMono = JetBrains_Mono({
   variable: '--font-jetbrains-mono',
 });
 
-// Metadata for the application
-export const metadata = {
-  title: 'OpenPay | Secure Financial Solutions',
-  description: 'OpenPay offers secure and reliable financial services for individuals and businesses.',
-  keywords: 'fintech, payments, transactions, secure financial services',
-  authors: [{ name: 'OpenPay Team' }],
+export const metadata: Metadata = {
+  title: 'OpenPay | Finanzas Seguras',
+  description: 'La plataforma financiera moderna que te da control total sobre tus finanzas personales.',
+  keywords: 'fintech, pagos, transferencias, finanzas seguras',
+  authors: [{ name: 'OpenPay' }],
   creator: 'OpenPay',
-  themeColor: '#0ea5e9',
-  viewport: 'width=device-width, initial-scale=1',
   robots: 'index, follow',
+};
+
+export const viewport: Viewport = {
+  themeColor: '#7c3aed',
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${poppins.variable} ${jetbrainsMono.variable}`}>
-      <body className="min-h-screen bg-neutral-50 font-sans text-neutral-900">
-        {/* Providers will be added here (auth, themes, etc.) */}
-        <main>
-          {children}
-        </main>
-        
-        {/* Add toaster for notifications */}
+    <html lang="es" className={`${inter.variable} ${poppins.variable} ${jetbrainsMono.variable}`}>
+      <body className="min-h-screen bg-background font-sans text-foreground antialiased">
+        <main>{children}</main>
         <Toaster />
       </body>
     </html>
