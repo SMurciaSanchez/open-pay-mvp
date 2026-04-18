@@ -2,11 +2,6 @@
 packages/web/.env
 packages/web/.env.local
 packages/web/.env.production
-packages/api/.env
-packages/api/.env.local
-
-# Archivos generados por Prisma (contienen schema de DB)
-packages/web/src/generated/
 
 # Archivos de build
 packages/web/.next/

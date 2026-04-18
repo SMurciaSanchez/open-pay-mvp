@@ -214,8 +214,8 @@ packages/web/
 ### Next.js App Router
 Toda la navegación usa el **App Router** de Next.js 15. Las páginas protegidas usan el `DashboardLayout` que envuelve el contenido con el sidebar y el header.
 
-### Backend: Supabase (no Flask)
-El backend **real** es Supabase. El módulo `packages/api/` (Flask) existe como placeholder para futura lógica server-side. Hoy toda la lógica de negocio vive en:
+### Backend: Supabase
+El backend es 100% Supabase. Toda la lógica de negocio vive en:
 - **PostgreSQL Functions** — `transfer_funds()` maneja transferencias con RLS y control de saldo
 - **Row Level Security (RLS)** — usuarios solo ven sus propios datos
 - **Supabase Auth** — JWT firmado, refresh token automático

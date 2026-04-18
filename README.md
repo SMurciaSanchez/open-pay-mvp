@@ -28,8 +28,7 @@
 open-pay-mvp/
 ├── packages/
 │   ├── web/          # Frontend Next.js 15 — PRINCIPAL
-│   ├── mobile/       # App React Native + Expo
-│   └── api/          # Placeholder Flask (no activo — backend es Supabase)
+│   └── mobile/       # App React Native + Expo
 ├── app/              # Documentación y planes anteriores
 ├── README.md
 └── improvement-plan.md
@@ -113,7 +112,7 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
 
 ## Arquitectura del backend
 
-El backend **real** es Supabase — no hay servidor Flask activo.
+El backend es **Supabase** (PostgreSQL + Auth + Storage + RLS).
 
 ```
 Cliente (Next.js / React Native)
