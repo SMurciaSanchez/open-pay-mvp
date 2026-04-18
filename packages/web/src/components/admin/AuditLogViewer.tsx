@@ -37,20 +37,22 @@ import {
 } from '@/components/ui/dialog';
 import { formatDate } from '@/lib/utils/formatters';
 import { adminApi } from '@/lib/api/admin';
-import { 
-  Search, 
-  ClipboardList, 
-  Filter, 
-  ChevronDown, 
-  ChevronUp, 
-  AlertCircle, 
-  User, 
-  Download, 
-  Lock, 
+import {
+  Search,
+  ClipboardList,
+  Filter,
+  ChevronDown,
+  ChevronUp,
+  AlertCircle,
+  User,
+  Download,
+  Lock,
   Unlock,
-  Eye, 
+  Eye,
   RotateCw,
-  RefreshCcw
+  RefreshCcw,
+  CheckCircle,
+  XCircle
 } from 'lucide-react';
 
 // Types
@@ -124,6 +126,10 @@ export function AuditLogViewer() {
         return <Badge className="bg-blue-500 flex items-center gap-1"><Download className="h-3 w-3" /> Exportar Usuarios</Badge>;
       case 'UPDATE_USER':
         return <Badge className="bg-amber-500 flex items-center gap-1"><User className="h-3 w-3" /> Actualizar Usuario</Badge>;
+      case 'VERIFY_USER':
+        return <Badge className="bg-green-600 flex items-center gap-1"><CheckCircle className="h-3 w-3" /> Verificar Usuario</Badge>;
+      case 'REJECT_VERIFICATION':
+        return <Badge className="bg-orange-500 flex items-center gap-1"><XCircle className="h-3 w-3" /> Rechazar Verificación</Badge>;
       default:
         return <Badge variant="outline">{action}</Badge>;
     }
@@ -199,6 +205,8 @@ export function AuditLogViewer() {
                   <SelectItem value="UNBLOCK_USER">Desbloquear Usuario</SelectItem>
                   <SelectItem value="EXPORT_USERS">Exportar Usuarios</SelectItem>
                   <SelectItem value="UPDATE_USER">Actualizar Usuario</SelectItem>
+                  <SelectItem value="VERIFY_USER">Verificar Usuario</SelectItem>
+                  <SelectItem value="REJECT_VERIFICATION">Rechazar Verificación</SelectItem>
                 </SelectContent>
               </Select>
               

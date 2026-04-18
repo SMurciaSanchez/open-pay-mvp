@@ -69,6 +69,7 @@ import { adminApi } from '@/lib/api/admin';
 import { formatDate } from '@/lib/utils/formatters';
 import { UserDetailView } from './UserDetailView';
 import { BlockUserDialog } from './BlockUserDialog';
+import { ExportDialog } from './ExportDialog';
 
 // Types for user data
 interface User {
@@ -95,6 +96,11 @@ export function UserManagement() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isBlockDialogOpen, setIsBlockDialogOpen] = useState(false);
   const [viewingUserId, setViewingUserId] = useState<string | null>(null);
+  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [sortField, setSortField] = useState<string>('name');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   const fetchUsers = async () => {
     setIsLoading(true);
@@ -205,28 +211,49 @@ export function UserManagement() {
   }, []);
 
   useEffect(() => {
+    setCurrentPage(1);
     // Filter users based on search term and filters
     let result = users;
-    
+
     if (searchTerm) {
       const lowercasedSearch = searchTerm.toLowerCase();
       result = result.filter(
-        user => 
-          user.name.toLowerCase().includes(lowercasedSearch) || 
+        user =>
+          user.name.toLowerCase().includes(lowercasedSearch) ||
           user.email.toLowerCase().includes(lowercasedSearch)
       );
     }
-    
+
     if (statusFilter !== 'all') {
       result = result.filter(user => user.status === statusFilter);
     }
-    
+
     if (verificationFilter !== 'all') {
       result = result.filter(user => user.verificationStatus === verificationFilter);
     }
-    
+
     setFilteredUsers(result);
   }, [users, searchTerm, statusFilter, verificationFilter]);
+
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+    setCurrentPage(1);
+  };
+
+  const sortedUsers = [...filteredUsers].sort((a, b) => {
+    const aVal = a[sortField as keyof User] ?? '';
+    const bVal = b[sortField as keyof User] ?? '';
+    const cmp = String(aVal).localeCompare(String(bVal));
+    return sortDirection === 'asc' ? cmp : -cmp;
+  });
+
+  const totalPages = Math.ceil(sortedUsers.length / pageSize);
+  const paginatedUsers = sortedUsers.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const handleEditUser = (user: User) => {
     setSelectedUser(user);
@@ -372,26 +399,6 @@ export function UserManagement() {
     });
   };
 
-  const handleExportUsers = async () => {
-    try {
-      // In a real app, this would trigger an API call to generate a CSV/Excel file
-      // const url = await adminApi.exportUsers(filteredUsers.map(u => u.id));
-      // window.open(url, '_blank');
-      
-      toast({
-        title: 'Exportación iniciada',
-        description: 'Los datos de usuarios se están preparando para descargar',
-      });
-    } catch (error) {
-      console.error('Error exporting users:', error);
-      toast({
-        title: 'Error',
-        description: 'No se pudieron exportar los usuarios',
-        variant: 'destructive',
-      });
-    }
-  };
-
   const getStatusBadge = (status: User['status'], blockedUntil?: string) => {
     switch (status) {
       case 'active':
@@ -495,11 +502,11 @@ export function UserManagement() {
                 </SelectContent>
               </Select>
               
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 className="flex items-center gap-2 h-9"
-                onClick={handleExportUsers}
+                onClick={() => setIsExportDialogOpen(true)}
               >
                 <Download className="h-4 w-4" />
                 <span className="hidden sm:inline">Exportar</span>
@@ -516,12 +523,24 @@ export function UserManagement() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Usuario</TableHead>
-                    <TableHead>Estado</TableHead>
-                    <TableHead>Verificación</TableHead>
-                    <TableHead>Rol</TableHead>
-                    <TableHead>Fecha Registro</TableHead>
-                    <TableHead>Último Acceso</TableHead>
+                    <TableHead className="cursor-pointer select-none" onClick={() => handleSort('name')}>
+                      Usuario {sortField === 'name' && (sortDirection === 'asc' ? '↑' : '↓')}
+                    </TableHead>
+                    <TableHead className="cursor-pointer select-none" onClick={() => handleSort('status')}>
+                      Estado {sortField === 'status' && (sortDirection === 'asc' ? '↑' : '↓')}
+                    </TableHead>
+                    <TableHead className="cursor-pointer select-none" onClick={() => handleSort('verificationStatus')}>
+                      Verificación {sortField === 'verificationStatus' && (sortDirection === 'asc' ? '↑' : '↓')}
+                    </TableHead>
+                    <TableHead className="cursor-pointer select-none" onClick={() => handleSort('role')}>
+                      Rol {sortField === 'role' && (sortDirection === 'asc' ? '↑' : '↓')}
+                    </TableHead>
+                    <TableHead className="cursor-pointer select-none" onClick={() => handleSort('createdAt')}>
+                      Fecha Registro {sortField === 'createdAt' && (sortDirection === 'asc' ? '↑' : '↓')}
+                    </TableHead>
+                    <TableHead className="cursor-pointer select-none" onClick={() => handleSort('lastLogin')}>
+                      Último Acceso {sortField === 'lastLogin' && (sortDirection === 'asc' ? '↑' : '↓')}
+                    </TableHead>
                     <TableHead className="text-right">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -533,7 +552,7 @@ export function UserManagement() {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredUsers.map((user) => (
+                    paginatedUsers.map((user) => (
                       <TableRow key={user.id}>
                         <TableCell>
                           <div className="font-medium">{user.name}</div>
@@ -598,16 +617,37 @@ export function UserManagement() {
             </div>
           )}
           
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-muted-foreground">
-              Mostrando {filteredUsers.length} de {users.length} usuarios
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Filas por página:</span>
+              <Select value={String(pageSize)} onValueChange={(v) => { setPageSize(Number(v)); setCurrentPage(1); }}>
+                <SelectTrigger className="w-[70px] h-8">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="5">5</SelectItem>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="20">20</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                </SelectContent>
+              </Select>
+              <span className="text-sm text-muted-foreground">
+                {filteredUsers.length === 0 ? '0' : `${(currentPage - 1) * pageSize + 1}–${Math.min(currentPage * pageSize, filteredUsers.length)}`} de {filteredUsers.length} usuarios
+              </span>
             </div>
             <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm" disabled>
+              <Button variant="outline" size="sm" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
+                «
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>
                 Anterior
               </Button>
-              <Button variant="outline" size="sm" disabled>
+              <span className="text-sm px-2">Página {currentPage} de {totalPages || 1}</span>
+              <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage >= totalPages}>
                 Siguiente
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setCurrentPage(totalPages)} disabled={currentPage >= totalPages}>
+                »
               </Button>
             </div>
           </div>
@@ -693,6 +733,14 @@ export function UserManagement() {
         onBlock={handleBlockUser}
         currentAdminId="current-admin-id"
         currentAdminName="Administrador"
+      />
+
+      {/* Export Dialog */}
+      <ExportDialog
+        open={isExportDialogOpen}
+        onOpenChange={setIsExportDialogOpen}
+        userCount={filteredUsers.length}
+        filters={{ status: statusFilter, verificationStatus: verificationFilter, search: searchTerm }}
       />
     </Card>
   );

@@ -61,6 +61,9 @@ export function ExportDialog({
   ]);
   const [includeHeaders, setIncludeHeaders] = useState(true);
   const [includeStats, setIncludeStats] = useState(false);
+  const [scheduleExport, setScheduleExport] = useState(false);
+  const [scheduleFrequency, setScheduleFrequency] = useState<'daily' | 'weekly' | 'monthly'>('weekly');
+  const [scheduleEmail, setScheduleEmail] = useState('');
 
   // All available fields that can be exported
   const availableFields = [
@@ -98,7 +101,16 @@ export function ExportDialog({
         includeStats,
         fileNaming: `usuarios_${new Date().toISOString().split('T')[0]}`
       };
-      
+
+      if (scheduleExport && scheduleEmail) {
+        toast({
+          title: 'Exportación programada',
+          description: `Recibirás el archivo ${scheduleFrequency === 'daily' ? 'diariamente' : scheduleFrequency === 'weekly' ? 'cada semana' : 'cada mes'} en ${scheduleEmail}`,
+        });
+        onOpenChange(false);
+        return;
+      }
+
       // For large exports, use background task
       if (userCount > 1000) {
         const taskId = await adminApi.startExportTask(exportConfig);
@@ -271,7 +283,52 @@ export function ExportDialog({
               </Label>
             </div>
           </div>
-          
+
+          <div className="space-y-3 border-t pt-3">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="schedule-export"
+                checked={scheduleExport}
+                onCheckedChange={(checked) => setScheduleExport(!!checked)}
+              />
+              <Label htmlFor="schedule-export" className="cursor-pointer font-medium">
+                Programar exportación periódica
+              </Label>
+            </div>
+
+            {scheduleExport && (
+              <div className="pl-6 space-y-3">
+                <div className="space-y-1">
+                  <Label className="text-sm">Frecuencia</Label>
+                  <Select value={scheduleFrequency} onValueChange={(v) => setScheduleFrequency(v as typeof scheduleFrequency)}>
+                    <SelectTrigger className="h-8">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="daily">Diaria</SelectItem>
+                      <SelectItem value="weekly">Semanal</SelectItem>
+                      <SelectItem value="monthly">Mensual</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="schedule-email" className="text-sm">Enviar a (correo)</Label>
+                  <input
+                    id="schedule-email"
+                    type="email"
+                    placeholder="admin@openpay.com"
+                    value={scheduleEmail}
+                    onChange={(e) => setScheduleEmail(e.target.value)}
+                    className="flex h-8 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Recibirás el archivo automáticamente según la frecuencia seleccionada.
+                </p>
+              </div>
+            )}
+          </div>
+
           <div className="bg-muted rounded-md p-3 text-sm">
             <div className="flex items-start gap-2">
               <div>

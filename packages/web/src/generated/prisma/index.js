@@ -183,7 +183,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\msseb\\Desktop\\open-pay-mvp\\packages\\web\\src\\generated\\prisma",
+      "value": "C:\\Users\\msseb\\Desktop\\Trabajo y Proyectos\\open-pay-mvp\\packages\\web\\src\\generated\\prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -197,7 +197,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\Users\\msseb\\Desktop\\open-pay-mvp\\packages\\web\\prisma\\schema.prisma",
+    "sourceFilePath": "C:\\Users\\msseb\\Desktop\\Trabajo y Proyectos\\open-pay-mvp\\packages\\web\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -211,11 +211,12 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
         "fromEnvVar": "DATABASE_URL",
-        "value": "postgresql://postgres.bmfiotbutuslsaxeumik:Camila8983*Camila8983@aws-1-us-east-2.pooler.supabase.com:5432/postgres"
+        "value": null
       }
     }
   },

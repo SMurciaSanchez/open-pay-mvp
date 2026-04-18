@@ -1,5 +1,17 @@
 // Biometric authentication utilities using WebAuthn
 // This handles registration and authentication using platform authenticators (fingerprint/FaceID/Windows Hello)
+//
+// ⚠️  SIMULATION_MODE = true
+// Esta implementación es una SIMULACIÓN CLIENT-SIDE. No hay verificación server-side.
+// Para producción se requiere:
+//   1. Endpoint POST /webauthn/register/begin  → genera challenge firmado por el servidor
+//   2. Endpoint POST /webauthn/register/finish → verifica y almacena la credencial en BD
+//   3. Endpoint POST /webauthn/auth/begin      → genera challenge de autenticación
+//   4. Endpoint POST /webauthn/auth/finish     → verifica la aserción contra la credencial guardada
+//   5. Librería server-side: @simplewebauthn/server (Node) o python-fido2 (Python)
+// Mientras SIMULATION_MODE sea true, el flujo devuelve éxito sin validación real.
+
+export const SIMULATION_MODE = true;
 
 /**
  * Check if the current browser supports WebAuthn
@@ -147,10 +159,15 @@ export async function registerBiometric(
       };
     }
     
-    // In a real implementation, the credential would be sent to the server for storage
-    // and verification. Here we just simulate success.
-    localStorage.setItem('biometric_registered', 'true');
-    
+    // SIMULATION_MODE: en producción, enviar `credential` al servidor para
+    // almacenamiento y verificación con @simplewebauthn/server.
+    // No se persiste en localStorage porque el estado de registro debe vivir
+    // en el servidor, no en el cliente.
+    if (SIMULATION_MODE) {
+      return { success: true };
+    }
+
+    // TODO (producción): await fetch('/api/webauthn/register/finish', { body: credential })
     return { success: true };
   } catch (error: any) {
     console.error('Error registering biometric:', error);
@@ -213,8 +230,13 @@ export async function authenticateWithBiometric(): Promise<{ success: boolean; e
       };
     }
     
-    // In a real implementation, the assertion would be sent to the server for verification
-    // Here we just simulate success
+    // SIMULATION_MODE: en producción, enviar `credential` al servidor para
+    // verificar la aserción con @simplewebauthn/server.
+    if (SIMULATION_MODE) {
+      return { success: true };
+    }
+
+    // TODO (producción): await fetch('/api/webauthn/auth/finish', { body: credential })
     return { success: true };
   } catch (error: any) {
     console.error('Error authenticating with biometric:', error);
@@ -243,20 +265,24 @@ export async function authenticateWithBiometric(): Promise<{ success: boolean; e
 
 /**
  * Check if the user has registered biometric authentication
+ * SIMULATION_MODE: siempre retorna false hasta tener backend FIDO2.
+ * En producción: consultar GET /api/webauthn/credentials para verificar si el
+ * usuario tiene credenciales registradas en el servidor.
  */
 export function isBiometricRegistered(): boolean {
-  // In a real implementation, this would check with the server
-  // Here we just use localStorage as a simple simulation
-  return localStorage.getItem('biometric_registered') === 'true';
+  if (SIMULATION_MODE) return false;
+  // TODO (producción): verificar con el servidor
+  return false;
 }
 
 /**
  * Remove registered biometric credentials
+ * SIMULATION_MODE: no-op hasta tener backend FIDO2.
+ * En producción: llamar DELETE /api/webauthn/credentials para eliminar en el servidor.
  */
 export function removeBiometricRegistration(): void {
-  // In a real implementation, this would call an API endpoint
-  // to remove the credentials on the server
-  localStorage.removeItem('biometric_registered');
+  if (SIMULATION_MODE) return;
+  // TODO (producción): await fetch('/api/webauthn/credentials', { method: 'DELETE' })
 }
 
 /**

@@ -562,8 +562,68 @@ export const adminApi = {
     }
     
     // Sort by timestamp (newest first)
-    return filteredLogs.sort((a, b) => 
+    return filteredLogs.sort((a, b) =>
       new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
     );
-  }
+  },
+
+  // Get users pending identity verification
+  async getPendingVerifications(): Promise<AdminUser[]> {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return [
+      {
+        id: '5',
+        name: 'Roberto Martínez',
+        email: 'roberto.martinez@example.com',
+        status: 'pending_verification',
+        role: 'user',
+        createdAt: '2023-05-25T15:30:00Z',
+        verified: false,
+      },
+      {
+        id: '4',
+        name: 'Ana López',
+        email: 'ana.lopez@example.com',
+        status: 'active',
+        role: 'user',
+        createdAt: '2023-04-10T13:00:00Z',
+        lastLogin: '2023-05-10T10:05:00Z',
+        verified: false,
+      },
+      {
+        id: '9',
+        name: 'Diego Fernández',
+        email: 'diego.fernandez@example.com',
+        status: 'active',
+        role: 'user',
+        createdAt: '2023-06-01T09:00:00Z',
+        lastLogin: '2023-06-03T14:20:00Z',
+        verified: false,
+      },
+    ];
+  },
+
+  // Approve identity verification
+  async approveVerification(userId: string, adminId: string, adminName: string, comments?: string): Promise<{ success: boolean }> {
+    await new Promise(resolve => setTimeout(resolve, 600));
+    await adminApi.createAuditLog({
+      adminId,
+      action: 'VERIFY_USER',
+      targetId: userId,
+      details: { approved: true, adminName, comments },
+    });
+    return { success: true };
+  },
+
+  // Reject identity verification
+  async rejectVerification(userId: string, adminId: string, adminName: string, reason: string): Promise<{ success: boolean }> {
+    await new Promise(resolve => setTimeout(resolve, 600));
+    await adminApi.createAuditLog({
+      adminId,
+      action: 'REJECT_VERIFICATION',
+      targetId: userId,
+      details: { approved: false, adminName, reason },
+    });
+    return { success: true };
+  },
 }; 
