@@ -2,11 +2,16 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": [
+        "src/*"
+      ]
     },
     "target": "esnext",
     "module": "commonjs",
-    "lib": ["es2017", "es6"],
+    "lib": [
+      "es2017",
+      "es6"
+    ],
     "allowJs": true,
     "jsx": "react-native",
     "noEmit": true,
@@ -27,5 +32,6 @@
   "include": [
     "src/**/*",
     "index.js"
-  ]
-} 
+  ],
+  "extends": "expo/tsconfig.base"
+}
