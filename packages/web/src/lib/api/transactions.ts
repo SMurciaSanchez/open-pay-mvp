@@ -161,7 +161,6 @@ export const getUserTransactions = async (userId: string): Promise<TransactionLi
   }
 };
 
-// Alternativa utilizando Supabase directamente (sin Prisma)
 export const getTransactionsWithSupabase = async (profileId: string): Promise<TransactionListResponse> => {
   try {
     const { data, error } = await supabase
