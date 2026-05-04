@@ -30,16 +30,31 @@ export interface TransactionRequest {
   type?: string;
 }
 
+export type OnChainStatus = 'PENDING' | 'ANCHORED' | 'FAILED' | 'SKIPPED';
+
+export interface TransactionEntityRef {
+  id: string;
+  name: string;
+  entityCode: string;
+  category: string;
+  logoUrl: string | null;
+}
+
 export interface TransactionResponse {
   id: string;
   senderId: string;
-  receiverId: string;
+  receiverId: string | null;
   amount: number;
   description?: string;
   status: string;
   type: string;
   createdAt: Date;
   updatedAt: Date;
+  onChainTxHash?: string | null;
+  onChainStatus?: OnChainStatus | null;
+  anchoredAt?: string | null;
+  isEntityPayment?: boolean;
+  entityReceiver?: TransactionEntityRef | null;
   error?: string;
 }
 
@@ -88,11 +103,24 @@ export const createTransaction = async (data: TransactionRequest): Promise<Trans
   }
 };
 
+const ENTITY_JOIN = 'entityReceiver:EntityReceiver(id, name, entityCode, category, logoUrl)';
+
+function mapEntity(raw: any): TransactionEntityRef | null {
+  if (!raw) return null;
+  return {
+    id: raw.id,
+    name: raw.name,
+    entityCode: raw.entityCode,
+    category: raw.category,
+    logoUrl: raw.logoUrl ?? null,
+  };
+}
+
 export const getTransactionById = async (id: string): Promise<TransactionResponse | TransactionError> => {
   try {
     const { data: tx, error } = await supabase
       .from('Transaction')
-      .select('*')
+      .select(`*, ${ENTITY_JOIN}`)
       .eq('id', id)
       .single();
 
@@ -103,13 +131,18 @@ export const getTransactionById = async (id: string): Promise<TransactionRespons
     return {
       id: tx.id,
       senderId: tx.senderId,
-      receiverId: tx.receiverId,
+      receiverId: tx.receiverId ?? null,
       amount: tx.amount,
       description: tx.description || undefined,
       status: tx.status,
       type: tx.type,
       createdAt: new Date(tx.createdAt),
       updatedAt: new Date(tx.updatedAt),
+      onChainTxHash: tx.onChainTxHash ?? null,
+      onChainStatus: tx.onChainStatus ?? null,
+      anchoredAt: tx.anchoredAt ?? null,
+      isEntityPayment: tx.isEntityPayment ?? false,
+      entityReceiver: mapEntity(tx.entityReceiver),
     };
   } catch (error: unknown) {
     return {
@@ -133,7 +166,7 @@ export const getUserTransactions = async (userId: string): Promise<TransactionLi
 
     const { data: transactions, error } = await supabase
       .from('Transaction')
-      .select('*')
+      .select(`*, ${ENTITY_JOIN}`)
       .or(`senderId.eq.${profile.id},receiverId.eq.${profile.id}`)
       .order('createdAt', { ascending: false });
 
@@ -143,13 +176,18 @@ export const getUserTransactions = async (userId: string): Promise<TransactionLi
       transactions: (transactions || []).map((t: any) => ({
         id: t.id,
         senderId: t.senderId,
-        receiverId: t.receiverId,
+        receiverId: t.receiverId ?? null,
         amount: t.amount,
         description: t.description || undefined,
         status: t.status,
         type: t.type,
         createdAt: new Date(t.createdAt),
         updatedAt: new Date(t.updatedAt),
+        onChainTxHash: t.onChainTxHash ?? null,
+        onChainStatus: t.onChainStatus ?? null,
+        anchoredAt: t.anchoredAt ?? null,
+        isEntityPayment: t.isEntityPayment ?? false,
+        entityReceiver: mapEntity(t.entityReceiver),
       })),
     };
   } catch (error: unknown) {
@@ -164,8 +202,8 @@ export const getUserTransactions = async (userId: string): Promise<TransactionLi
 export const getTransactionsWithSupabase = async (profileId: string): Promise<TransactionListResponse> => {
   try {
     const { data, error } = await supabase
-      .from('transactions')
-      .select('*')
+      .from('Transaction')
+      .select(`*, ${ENTITY_JOIN}`)
       .or(`senderId.eq.${profileId},receiverId.eq.${profileId}`)
       .order('createdAt', { ascending: false });
 
@@ -174,17 +212,22 @@ export const getTransactionsWithSupabase = async (profileId: string): Promise<Tr
     }
 
     return {
-      transactions: data.map((t: any) => ({
+      transactions: (data || []).map((t: any) => ({
         id: t.id,
         senderId: t.senderId,
-        receiverId: t.receiverId,
+        receiverId: t.receiverId ?? null,
         amount: t.amount,
-        description: t.description,
+        description: t.description || undefined,
         status: t.status,
         type: t.type,
         createdAt: new Date(t.createdAt),
-        updatedAt: new Date(t.updatedAt)
-      }))
+        updatedAt: new Date(t.updatedAt),
+        onChainTxHash: t.onChainTxHash ?? null,
+        onChainStatus: t.onChainStatus ?? null,
+        anchoredAt: t.anchoredAt ?? null,
+        isEntityPayment: t.isEntityPayment ?? false,
+        entityReceiver: mapEntity(t.entityReceiver),
+      })),
     };
   } catch (error: any) {
     console.error('Error al obtener transacciones con Supabase:', error);

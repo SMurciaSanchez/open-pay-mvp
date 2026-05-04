@@ -18,6 +18,8 @@ export interface Account {
   status: string;
 }
 
+export type OnChainStatus = 'PENDING' | 'ANCHORED' | 'FAILED' | 'SKIPPED';
+
 export interface Transaction {
   id: string;
   senderId: string;
@@ -28,6 +30,9 @@ export interface Transaction {
   type: string;
   createdAt: string;
   updatedAt: string;
+  onChainTxHash?: string | null;
+  onChainStatus?: OnChainStatus | null;
+  anchoredAt?: string | null;
 }
 
 // Obtiene o crea el perfil del usuario autenticado

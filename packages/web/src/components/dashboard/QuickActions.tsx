@@ -38,11 +38,11 @@ export function QuickActions() {
       onClick: () => router.push('/savings')
     },
     {
-      id: 'services',
-      title: 'Servicios',
-      color: 'bg-secondary-100 text-secondary-600',
+      id: 'pay-entity',
+      title: 'Entidades',
+      color: 'bg-indigo-100 text-indigo-600',
       icon: <Icons.receipt className="h-6 w-6" />,
-      onClick: () => router.push('/services')
+      onClick: () => router.push('/pay-entity')
     }
   ];
 

@@ -32,16 +32,45 @@ export interface Account {
   status: string;
 }
 
+export type OnChainStatus = 'PENDING' | 'ANCHORED' | 'FAILED' | 'SKIPPED';
+
+export type EntityCategory =
+  | 'TAX' | 'SOCIAL' | 'DONATION' | 'UTILITIES' | 'TELECOM' | 'OTHER';
+
+export interface EntityReceiver {
+  id: string;
+  name: string;
+  entityCode: string;
+  category: EntityCategory;
+  description: string | null;
+  logoUrl: string | null;
+  isVerified: boolean;
+  isActive: boolean;
+}
+
+export interface TransactionEntityRef {
+  id: string;
+  name: string;
+  entityCode: string;
+  category: string;
+  logoUrl: string | null;
+}
+
 export interface Transaction {
   id: string;
   senderId: string;
-  receiverId: string;
+  receiverId: string | null;
   amount: number;
   description?: string;
   status: string;
   type: string;
   createdAt: string;
   updatedAt: string;
+  onChainTxHash?: string | null;
+  onChainStatus?: OnChainStatus | null;
+  anchoredAt?: string | null;
+  isEntityPayment?: boolean;
+  entityReceiver?: TransactionEntityRef | null;
 }
 
 // Obtiene o crea el perfil del usuario autenticado
@@ -88,17 +117,67 @@ export async function getAccount(profileId: string): Promise<Account | null> {
   return data;
 }
 
+const ENTITY_JOIN = 'entityReceiver:EntityReceiver(id, name, entityCode, category, logoUrl)';
+
 // Obtiene transacciones del usuario
 export async function getTransactions(profileId: string, limit = 20): Promise<Transaction[]> {
   const { data, error } = await supabase
     .from('Transaction')
-    .select('*')
+    .select(`*, ${ENTITY_JOIN}`)
     .or(`senderId.eq.${profileId},receiverId.eq.${profileId}`)
     .order('createdAt', { ascending: false })
     .limit(limit);
 
   if (error) throw new Error(error.message);
-  return data || [];
+  return (data || []) as Transaction[];
+}
+
+export const CATEGORY_LABELS: Record<EntityCategory, string> = {
+  TAX: 'Impuestos',
+  SOCIAL: 'Programas sociales',
+  DONATION: 'Donaciones',
+  UTILITIES: 'Servicios públicos',
+  TELECOM: 'Telecomunicaciones',
+  OTHER: 'Otros',
+};
+
+export async function listEntities(): Promise<EntityReceiver[]> {
+  const { data, error } = await supabase
+    .from('EntityReceiver')
+    .select('id, name, entityCode, category, description, logoUrl, isVerified, isActive')
+    .eq('isActive', true)
+    .eq('isVerified', true)
+    .order('category', { ascending: true })
+    .order('name', { ascending: true });
+
+  if (error) throw new Error(error.message);
+  return (data ?? []) as EntityReceiver[];
+}
+
+export interface PayToEntityResult {
+  id: string;
+  status: 'completed' | 'already_processed';
+  amount?: number;
+  entityId?: string;
+  entityCode?: string;
+}
+
+export async function payToEntity(params: {
+  senderId: string;
+  entityCode: string;
+  amount: number;
+  description: string;
+}): Promise<PayToEntityResult> {
+  const { data, error } = await supabase.rpc('pay_to_entity', {
+    p_sender_id: params.senderId,
+    p_entity_code: params.entityCode,
+    p_amount: params.amount,
+    p_description: params.description,
+    p_idempotency_key: Math.random().toString(36).substring(2) + Date.now().toString(36),
+  });
+
+  if (error) throw new Error(error.message);
+  return data as PayToEntityResult;
 }
 
 // Busca un perfil por email para transferencias

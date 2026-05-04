@@ -105,13 +105,13 @@ const MainNavigator = () => {
           ),
         }}
       />
-      <MainTab.Screen 
-        name="Services" 
-        component={ServicesScreen} 
+      <MainTab.Screen
+        name="Services"
+        component={ServicesScreen}
         options={{
-          title: 'Servicios',
+          title: 'Entidades',
           tabBarIcon: ({ color, size }) => (
-            <Icon name="grid" size={size} color={color} />
+            <Icon name="briefcase" size={size} color={color} />
           ),
         }}
       />

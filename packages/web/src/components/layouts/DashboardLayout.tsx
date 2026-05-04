@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, ArrowRightLeft, CreditCard, Users, Clock,
   Bell, Settings, HelpCircle, LogOut, Menu, X, ChevronDown,
-  User, Shield, Zap, Search,
+  User, Shield, Zap, Search, Building2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
@@ -25,6 +25,7 @@ const mainNavItems: NavItem[] = [
   { title: 'Panel Principal', href: '/dashboard',    icon: LayoutDashboard },
   { title: 'Transferencias',  href: '/transfers',    icon: ArrowRightLeft },
   { title: 'Transacciones',   href: '/transactions', icon: Clock, badge: 3 },
+  { title: 'Pagar entidad',   href: '/pay-entity',   icon: Building2 },
   { title: 'Servicios',       href: '/services',     icon: CreditCard },
   { title: 'Contactos',       href: '/contacts',     icon: Users },
 ];

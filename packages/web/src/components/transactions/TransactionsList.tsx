@@ -4,36 +4,62 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowUpRight, ArrowDownLeft, Wallet, CreditCard, AlertCircle } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, CreditCard, AlertCircle, Building2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
-import { transactionsApi, Transaction } from '@/lib/api/transactions';
+import { useAuth } from '@/hooks/use-auth';
+import { supabase } from '@/lib/supabase';
+import {
+  getUserTransactions,
+  TransactionResponse,
+} from '@/lib/api/transactions';
 import { formatCurrency, formatDate } from '@/lib/utils';
+import { OnChainBadge } from './OnChainBadge';
 
 interface TransactionsListProps {
   limit?: number;
   showViewAll?: boolean;
+  profileId?: string;
 }
 
-export function TransactionsList({ limit, showViewAll = true }: TransactionsListProps) {
+export function TransactionsList({ limit, showViewAll = true, profileId }: TransactionsListProps) {
   const router = useRouter();
   const { toast } = useToast();
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const { user, loading: authLoading } = useAuth();
+  const [transactions, setTransactions] = useState<TransactionResponse[]>([]);
+  const [currentProfileId, setCurrentProfileId] = useState<string | null>(profileId ?? null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (authLoading) return;
+    if (!user) {
+      setLoading(false);
+      setTransactions([]);
+      return;
+    }
+
     const fetchTransactions = async () => {
       try {
         setLoading(true);
         setError(null);
-        
-        // For demo/MVP, use mock data
-        const data = transactionsApi.getMockTransactions(limit || 10);
-        setTransactions(data);
+
+        if (!currentProfileId) {
+          const { data: profile } = await supabase
+            .from('Profile')
+            .select('id')
+            .eq('userId', user.id)
+            .single();
+          if (profile?.id) setCurrentProfileId(profile.id);
+        }
+
+        const { transactions: txs, error: apiError } = await getUserTransactions(user.id);
+        if (apiError) throw new Error(apiError);
+
+        const sliced = limit ? txs.slice(0, limit) : txs;
+        setTransactions(sliced);
       } catch (err) {
         console.error('Error fetching transactions:', err);
         setError('No se pudieron cargar las transacciones');
-        
         toast({
           title: 'Error',
           description: 'No se pudieron cargar las transacciones',
@@ -45,49 +71,45 @@ export function TransactionsList({ limit, showViewAll = true }: TransactionsList
     };
 
     fetchTransactions();
-  }, [limit, toast]);
+  }, [limit, toast, user, authLoading, currentProfileId]);
 
-  const getTransactionIcon = (type: Transaction['type']) => {
-    switch (type) {
-      case 'send':
-        return <ArrowUpRight className="h-4 w-4 text-red-500" />;
-      case 'receive':
-        return <ArrowDownLeft className="h-4 w-4 text-green-500" />;
-      case 'topup':
-        return <Wallet className="h-4 w-4 text-blue-500" />;
-      case 'withdraw':
-        return <CreditCard className="h-4 w-4 text-orange-500" />;
-      default:
-        return <ArrowUpRight className="h-4 w-4" />;
+  const isIncoming = (tx: TransactionResponse) =>
+    currentProfileId ? tx.receiverId === currentProfileId : false;
+
+  const getTransactionIcon = (tx: TransactionResponse) => {
+    if (tx.isEntityPayment && tx.entityReceiver) {
+      if (tx.entityReceiver.logoUrl) {
+        return (
+          <img
+            src={tx.entityReceiver.logoUrl}
+            alt={tx.entityReceiver.name}
+            className="h-6 w-6 rounded-md object-cover"
+          />
+        );
+      }
+      return <Building2 className="h-4 w-4 text-indigo-500" />;
     }
+    return isIncoming(tx)
+      ? <ArrowDownLeft className="h-4 w-4 text-emerald-500" />
+      : <ArrowUpRight className="h-4 w-4 text-rose-500" />;
   };
 
-  const getTransactionTitle = (transaction: Transaction) => {
-    switch (transaction.type) {
-      case 'send':
-        return `Enviado a ${transaction.recipient?.name || 'usuario'}`;
-      case 'receive':
-        return `Recibido de ${transaction.sender?.name || 'usuario'}`;
-      case 'topup':
-        return 'Recarga de saldo';
-      case 'withdraw':
-        return 'Retiro a cuenta bancaria';
-      default:
-        return 'Transacción';
+  const getTransactionTitle = (tx: TransactionResponse) => {
+    if (tx.isEntityPayment && tx.entityReceiver) {
+      return `Pago a ${tx.entityReceiver.name}`;
     }
+    if (tx.description) return tx.description;
+    return isIncoming(tx) ? 'Transferencia recibida' : 'Transferencia enviada';
   };
 
-  const getStatusBadge = (status: Transaction['status']) => {
-    switch (status) {
-      case 'completed':
-        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Completada</Badge>;
-      case 'pending':
-        return <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">Pendiente</Badge>;
-      case 'failed':
-        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Fallida</Badge>;
-      default:
-        return null;
-    }
+  const getStatusBadge = (status: string) => {
+    const s = status.toLowerCase();
+    if (s === 'completed' || s === 'success') return null;
+    if (s === 'pending' || s === 'processing')
+      return <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">Pendiente</Badge>;
+    if (s === 'failed' || s === 'cancelled')
+      return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Fallida</Badge>;
+    return null;
   };
 
   const handleViewTransaction = (id: string) => {
@@ -98,7 +120,6 @@ export function TransactionsList({ limit, showViewAll = true }: TransactionsList
     <div className="rounded-2xl bg-white border border-violet-100 overflow-hidden"
       style={{ boxShadow: '0 4px 20px rgba(124,58,237,0.08)' }}
     >
-      {/* Header */}
       <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: '1px solid rgba(124,58,237,0.08)' }}>
         <div className="flex items-center gap-3">
           <div className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0"
@@ -108,7 +129,7 @@ export function TransactionsList({ limit, showViewAll = true }: TransactionsList
           </div>
           <div>
             <h3 className="font-bold text-slate-900 text-base leading-none">Movimientos</h3>
-            <p className="text-xs text-slate-400 mt-0.5">Historial de transacciones</p>
+            <p className="text-xs text-slate-400 mt-0.5">Historial verificable on-chain</p>
           </div>
         </div>
         {showViewAll && transactions.length > 0 && (
@@ -163,30 +184,39 @@ export function TransactionsList({ limit, showViewAll = true }: TransactionsList
           </div>
         ) : (
           <div className="space-y-0.5">
-            {transactions.map((transaction) => {
-              const isPositive = transaction.type === 'receive' || transaction.type === 'topup';
+            {transactions.map((tx) => {
+              const incoming = isIncoming(tx);
               return (
                 <div
-                  key={transaction.id}
+                  key={tx.id}
                   className="flex items-center justify-between px-3 py-3 rounded-xl cursor-pointer transition-all duration-150 hover:bg-violet-50/60 group"
-                  onClick={() => handleViewTransaction(transaction.id)}
+                  onClick={() => handleViewTransaction(tx.id)}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
                     <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-150 group-hover:scale-105 ${
-                      isPositive ? 'bg-emerald-100' : 'bg-rose-100'
+                      tx.isEntityPayment ? 'bg-indigo-100' : incoming ? 'bg-emerald-100' : 'bg-rose-100'
                     }`}>
-                      {getTransactionIcon(transaction.type)}
+                      {getTransactionIcon(tx)}
                     </div>
-                    <div>
-                      <p className="font-semibold text-sm text-slate-800 leading-none">{getTransactionTitle(transaction)}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <p className="text-xs text-slate-400">{formatDate(transaction.date)}</p>
-                        {transaction.status !== 'completed' && getStatusBadge(transaction.status)}
+                    <div className="min-w-0">
+                      <p className="font-semibold text-sm text-slate-800 leading-none truncate">
+                        {getTransactionTitle(tx)}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        <p className="text-xs text-slate-400">
+                          {formatDate(tx.createdAt.toISOString())}
+                        </p>
+                        {getStatusBadge(tx.status)}
+                        <OnChainBadge
+                          status={tx.onChainStatus}
+                          txHash={tx.onChainTxHash}
+                          variant="compact"
+                        />
                       </div>
                     </div>
                   </div>
-                  <p className={`font-bold text-sm tabular-nums ${isPositive ? 'text-emerald-600' : 'text-rose-500'}`}>
-                    {isPositive ? '+' : '-'}{formatCurrency(transaction.amount)}
+                  <p className={`font-bold text-sm tabular-nums ml-2 shrink-0 ${incoming ? 'text-emerald-600' : 'text-rose-500'}`}>
+                    {incoming ? '+' : '-'}{formatCurrency(tx.amount)}
                   </p>
                 </div>
               );
@@ -196,4 +226,4 @@ export function TransactionsList({ limit, showViewAll = true }: TransactionsList
       </div>
     </div>
   );
-} 
+}

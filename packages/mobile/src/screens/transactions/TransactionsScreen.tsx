@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, RefreshControl } from 'react-native';
-import { getOrCreateProfile, getTransactions, Transaction } from '../../lib/supabase';
+import { View, Text, Image, FlatList, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, RefreshControl } from 'react-native';
+import { CATEGORY_LABELS, getOrCreateProfile, getTransactions, Transaction } from '../../lib/supabase';
+import { OnChainBadge } from './OnChainBadge';
 
 type FilterType = 'all' | 'credit' | 'debit';
 
@@ -33,10 +34,17 @@ const TransactionsScreen = () => {
   const getTxType = (tx: Transaction): 'credit' | 'debit' =>
     profileId && tx.receiverId === profileId ? 'credit' : 'debit';
 
+  const getTxTitle = (tx: Transaction, type: 'credit' | 'debit') => {
+    if (tx.isEntityPayment && tx.entityReceiver) {
+      return `Pago a ${tx.entityReceiver.name}`;
+    }
+    return tx.description || (type === 'credit' ? 'Transferencia recibida' : 'Transferencia enviada');
+  };
+
   const filtered = transactions.filter(tx => {
     const type = getTxType(tx);
-    const desc = tx.description || '';
-    const matchSearch = desc.toLowerCase().includes(search.toLowerCase());
+    const haystack = `${tx.description || ''} ${tx.entityReceiver?.name || ''}`.toLowerCase();
+    const matchSearch = haystack.includes(search.toLowerCase());
     const matchFilter = filter === 'all' || type === filter;
     return matchSearch && matchFilter;
   });
@@ -82,20 +90,34 @@ const TransactionsScreen = () => {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         renderItem={({ item }) => {
           const type = getTxType(item);
+          const isEntity = !!item.isEntityPayment && !!item.entityReceiver;
+          const iconStyle = isEntity ? styles.iconEntity : (type === 'credit' ? styles.iconCredit : styles.iconDebit);
+          const amtStyle = isEntity ? styles.amtEntity : (type === 'credit' ? styles.amtCredit : styles.amtDebit);
+          const sign = isEntity ? '-' : (type === 'credit' ? '+' : '-');
           return (
             <View style={styles.txItem}>
-              <View style={[styles.txIcon, type === 'credit' ? styles.iconCredit : styles.iconDebit]}>
-                <Text style={styles.iconText}>{type === 'credit' ? '↓' : '↑'}</Text>
+              <View style={[styles.txIcon, iconStyle]}>
+                {isEntity && item.entityReceiver?.logoUrl ? (
+                  <Image source={{ uri: item.entityReceiver.logoUrl }} style={styles.iconImg} />
+                ) : (
+                  <Text style={styles.iconText}>{isEntity ? '🏛' : type === 'credit' ? '↓' : '↑'}</Text>
+                )}
               </View>
               <View style={styles.txInfo}>
-                <Text style={styles.txDesc}>
-                  {item.description || (type === 'credit' ? 'Transferencia recibida' : 'Transferencia enviada')}
+                <Text style={styles.txDesc} numberOfLines={1}>
+                  {getTxTitle(item, type)}
                 </Text>
+                {isEntity && item.entityReceiver && (
+                  <Text style={styles.txCategory}>
+                    {CATEGORY_LABELS[item.entityReceiver.category as keyof typeof CATEGORY_LABELS] ?? item.entityReceiver.category}
+                  </Text>
+                )}
                 <Text style={styles.txDate}>{formatDate(item.createdAt)}</Text>
                 <Text style={styles.txStatus}>{item.status}</Text>
+                <OnChainBadge status={item.onChainStatus} txHash={item.onChainTxHash} />
               </View>
-              <Text style={[styles.txAmount, type === 'credit' ? styles.amtCredit : styles.amtDebit]}>
-                {type === 'credit' ? '+' : '-'}{formatCurrency(item.amount)}
+              <Text style={[styles.txAmount, amtStyle]}>
+                {sign}{formatCurrency(item.amount)}
               </Text>
             </View>
           );
@@ -120,14 +142,18 @@ const styles = StyleSheet.create({
   txIcon: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
   iconCredit: { backgroundColor: '#D1FAE5' },
   iconDebit: { backgroundColor: '#FEE2E2' },
+  iconEntity: { backgroundColor: '#E0E7FF' },
   iconText: { fontSize: 18 },
+  iconImg: { width: 28, height: 28, borderRadius: 6 },
   txInfo: { flex: 1 },
   txDesc: { fontSize: 14, fontWeight: '500', color: '#1F2937' },
+  txCategory: { fontSize: 11, color: '#6366F1', marginTop: 1, fontWeight: '500' },
   txDate: { fontSize: 12, color: '#9CA3AF', marginTop: 2 },
   txStatus: { fontSize: 11, color: '#9CA3AF', marginTop: 1, textTransform: 'capitalize' },
   txAmount: { fontSize: 15, fontWeight: '600' },
   amtCredit: { color: '#059669' },
   amtDebit: { color: '#DC2626' },
+  amtEntity: { color: '#4F46E5' },
   empty: { textAlign: 'center', color: '#9CA3AF', marginTop: 40 },
 });
 

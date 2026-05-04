@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { Session } from '@supabase/supabase-js';
-import { supabase } from '../lib/supabase';
+import { getOrCreateProfile, supabase } from '../lib/supabase';
 import { AuthService } from '../services/AuthService';
 
 interface UserInfo {
@@ -37,18 +37,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
   const [session, setSession] = useState<Session | null>(null);
   const authService = AuthService.getInstance();
+  const provisionedRef = useRef<string | null>(null);
 
   useEffect(() => {
-    // Cargar sesión inicial
+    // Garantiza que Profile + Account existan para el user autenticado.
+    // getOrCreateProfile es idempotente. Se llama por id único para no repetir
+    // en cada refresh de token que emite onAuthStateChange.
+    const provision = (s: Session | null) => {
+      const uid = s?.user?.id;
+      if (!uid || provisionedRef.current === uid) return;
+      provisionedRef.current = uid;
+      getOrCreateProfile().catch(err => {
+        console.error('getOrCreateProfile failed:', err);
+        provisionedRef.current = null;
+      });
+    };
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setIsLoading(false);
+      provision(session);
     });
 
-    // Escuchar cambios de sesión en tiempo real
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setIsLoading(false);
+      provision(session);
     });
 
     return () => subscription.unsubscribe();

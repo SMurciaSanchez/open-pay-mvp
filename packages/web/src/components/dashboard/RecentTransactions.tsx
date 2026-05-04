@@ -15,6 +15,8 @@ import api from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Icons } from '@/components/ui/icons';
+import { OnChainBadge } from '@/components/transactions/OnChainBadge';
+import type { OnChainStatus } from '@/lib/api';
 
 export function RecentTransactions() {
   const [loading, setLoading] = useState(true);
@@ -114,6 +116,11 @@ export function RecentTransactions() {
                   <Badge className={getStatusColor(transaction.status)}>
                     {transaction.status}
                   </Badge>
+                  <OnChainBadge
+                    status={(transaction as { onChainStatus?: OnChainStatus | null }).onChainStatus}
+                    txHash={(transaction as { onChainTxHash?: string | null }).onChainTxHash}
+                    variant="compact"
+                  />
                 </div>
               </div>
             ))}
